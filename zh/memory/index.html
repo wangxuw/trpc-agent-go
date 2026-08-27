@@ -1,0 +1,5685 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://trpc-group.github.io/trpc-agent-go/zh/memory/">
+      
+      
+        <link rel="prev" href="../plugin/">
+      
+      
+        <link rel="next" href="usage/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>概览 - tRPC-Agent-Go</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config",""),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#memory" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../" title="tRPC-Agent-Go" class="md-header__button md-logo" aria-label="tRPC-Agent-Go" data-md-component="logo">
+      
+  <img src="../../assets/img/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            tRPC-Agent-Go
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              概览
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="选择当前语言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../memory/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/trpc-group/trpc-agent-go" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    trpc-group/trpc-agent-go
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  概览
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../agent/" class="md-tabs__link">
+          
+  
+  
+  组件
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../gateway/" class="md-tabs__link">
+          
+  
+  
+  服务
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../observability/" class="md-tabs__link">
+          
+  
+  
+  可观测
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../ecosystem/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  生态
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../blog/trpcagentgo/" class="md-tabs__link">
+          
+  
+  
+  博客
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../" title="tRPC-Agent-Go" class="md-nav__button md-logo" aria-label="tRPC-Agent-Go" data-md-component="logo">
+      
+  <img src="../../assets/img/logo.png" alt="logo">
+
+    </a>
+    tRPC-Agent-Go
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/trpc-group/trpc-agent-go" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    trpc-group/trpc-agent-go
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    概览
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    组件
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            组件
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Agent
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Agent
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../goal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Goal 扩展
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multiagent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Multi Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    动态工作流
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../taskrun/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Task Run 运行时
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../team/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Team
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Graph Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    自定义 Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dify/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dify Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../claudecode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Claude Code Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../codex/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Codex Agent
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../codeexecutor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Executor
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../codeact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CodeAct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    错误处理
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prompt Template
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Callbacks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Plugins
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_10" id="__nav_2_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Memory
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            Memory
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    概览
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    概览
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      概述
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="概述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      定位
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      两种记忆模式
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      核心价值
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用场景
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="使用场景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      场景 1：个性化客服 Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      场景 2：学习陪伴 Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      场景 3：项目管理 Agent
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      快速开始
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="快速开始">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      环境要求
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      配置环境变量
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentic-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      工具驱动模式配置（Agentic Mode，可选）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动提取模式配置（Auto Mode，推荐）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      可选的自动更新策略
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assistant-episode" class="md-nav__link">
+    <span class="md-ellipsis">
+      可选的 Assistant Episode 提取
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      两种模式配置对比
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      核心概念
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      架构设计
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      核心组件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      关键流程
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="关键流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆的生命周期
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆检索流程
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#id" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆 ID 生成策略
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      存储后端
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      后端对比与选择
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="常见问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory 与 Session 的区别
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory ID 的幂等性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      搜索行为说明
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      软删除的注意事项
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      最佳实践
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最佳实践">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      生产环境配置
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      错误处理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      工具启用策略
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考链接
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    使用与配置
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="inmemory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    内存存储
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sqlite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SQLite
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sqlitevec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SQLiteVec
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="redis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Redis
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MySQL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysqlvec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MySQL Vector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="postgres/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pgvector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pgvector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="chromadb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ChromaDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mem0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    mem0 集成
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tencentdb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    TencentDB Agent Memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../artifact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Artifact
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../skill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Skill
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evolution
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_15" id="__nav_2_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Session
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_15">
+            <span class="md-nav__icon md-icon"></span>
+            Session
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/noop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Noop Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/summary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Session Summary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/inmemory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/sqlite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SQLite Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/redis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Redis Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/mysql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MySQL Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/tdsql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    TDSQL Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/postgres/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/pgvector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PGVector Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/clickhouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ClickHouse Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session/mongodb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MongoDB Session
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_16" id="__nav_2_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Knowledge
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_16">
+            <span class="md-nav__icon md-icon"></span>
+            Knowledge
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    概述
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/embedder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Embedder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/reranker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reranker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/query-enhancer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Enhancer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    数据源
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/code-rag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    代码知识库（Code RAG, Beta）
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/extractor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    内容提取器
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/filter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    过滤器
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    知识库管理
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/ocr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OCR
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_16_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_16_11" id="__nav_2_16_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    向量存储
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_16_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_16_11">
+            <span class="md-nav__icon md-icon"></span>
+            向量存储
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    概述
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/inmemory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/pgvector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PGVector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/tcvector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    TcVector
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/elasticsearch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Elasticsearch
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/qdrant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Qdrant
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/milvus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Milvus
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    故障排除
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Planner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../event/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Event
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_19" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_19" id="__nav_2_19_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Evaluation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_19_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_19">
+            <span class="md-nav__icon md-icon"></span>
+            Evaluation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    概览
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/evalset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估集
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/metric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估指标
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估器
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/evalresult/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估结果
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估服务
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/agentevaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估入口
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    评估方法
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation/server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    在线评估服务
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../promptiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PromptIter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    服务
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            服务
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Gateway
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trpcagent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tRPC-Agent API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    AG-UI
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            AG-UI
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    总览
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agui/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    实时对话路由
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agui/history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    消息快照路由
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agui/cancel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    取消路由
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../a2a_v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    A2A v1.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../a2a/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    A2A v0.2.x（旧版）
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../a2ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    A2UI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openclaw-runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OpenClaw Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    可观测
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            可观测
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    概览
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../telemetry-multimodal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    多模态遥测
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    生态
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    博客
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            博客
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/trpcagentgo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    构建智能 AI 应用的 Go 语言 Agent 框架
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/summary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    长任务 Agent 上下文管理的设计与评测
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/evolution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tRPC-Agent-Go Evolution：Agent 自进化的在线学习、离线优化与评测
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    看见 Agent 运行时：tRPC-Agent-Go 可观测的设计与取舍
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/promptcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    降低 Agent Token 成本：tRPC-Agent-Go 的 Prompt Cache 工程实践
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/codeexecutor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    从对话到执行：tRPC-Agent-Go Code Executor 如何为 Agent 构建可控运行环境
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/graphagent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GraphAgent 让 AI 工作流与 Agent 无缝融合
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/agui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    快速构建基于 AG-UI 的 Agent 服务
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/skill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Anthropic Agent Skills 规范的 Go 原生实现
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Agent 自动化评估范式与工程实践全解析
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/llmverifier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Agent 高质量稳定性提升方法
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/openclaw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    打造企业级安全可控的 OpenClaw Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/promptiter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AI Agent 提示词自动迭代与工程实践全解析
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../blog/multiagent-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    把工作放到合适边界：tRPC-Agent-Go Multi-Agent 设计与选型
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      概述
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="概述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      定位
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      两种记忆模式
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      核心价值
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      使用场景
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="使用场景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      场景 1：个性化客服 Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      场景 2：学习陪伴 Agent
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      场景 3：项目管理 Agent
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      快速开始
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="快速开始">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      环境要求
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      配置环境变量
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentic-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      工具驱动模式配置（Agentic Mode，可选）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      自动提取模式配置（Auto Mode，推荐）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      可选的自动更新策略
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assistant-episode" class="md-nav__link">
+    <span class="md-ellipsis">
+      可选的 Assistant Episode 提取
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      两种模式配置对比
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      核心概念
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心概念">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      架构设计
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      核心组件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      关键流程
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="关键流程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆的生命周期
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆检索流程
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#id" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆 ID 生成策略
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      存储后端
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      后端对比与选择
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="常见问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory 与 Session 的区别
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory ID 的幂等性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      搜索行为说明
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      软删除的注意事项
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      最佳实践
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最佳实践">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      生产环境配置
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      错误处理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      工具启用策略
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考链接
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/trpc-group/trpc-agent-go/edit/main/docs/mkdocs/zh/memory/index.md" title="编辑此页" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/trpc-group/trpc-agent-go/raw/main/docs/mkdocs/zh/memory/index.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="memory">Memory 使用文档</h1>
+<h2 id="_1">概述</h2>
+<p>Memory 是 tRPC-Agent-Go 框架中的记忆管理系统，为 Agent 提供持久化记忆和上下文管理能力。通过集成记忆服务、会话管理和记忆工具，Memory 系统能够帮助 Agent 记住用户信息、维护对话上下文，并在多轮对话中提供个性化的响应体验。</p>
+<h3 id="_2">定位</h3>
+<p>Memory 用于管理与用户相关的长期信息，隔离维度为 <code>&lt;appName, userID&gt;</code>，可以理解为围绕单个用户逐步积累的“个人档案”。</p>
+<p>在跨会话场景中，Memory 使系统依然能够保留当前用户的关键信息，避免每个会话都从零开始重复获取用户信息。</p>
+<p>它适合记录稳定、可复用的事实，例如“用户姓名是张三”、“职业是后端工程师”、“偏好简短回答”、“常用语言是英文”等用户信息，并在后续多次交互中直接使用这些信息。</p>
+<h3 id="_3">两种记忆模式</h3>
+<p>Memory 支持两种模式来创建和管理记忆，根据你的场景选择合适的模式：</p>
+<p>自动提取模式（Auto）在配置了 Extractor 后可用，且推荐作为默认选择。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>工具驱动模式（Agentic）</th>
+<th>自动提取模式（Auto）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>工作方式</strong></td>
+<td>Agent 决定何时调用记忆工具</td>
+<td>系统自动从对话中提取记忆</td>
+</tr>
+<tr>
+<td><strong>用户体验</strong></td>
+<td>可见 - 用户可见工具调用过程</td>
+<td>透明 - 后台静默创建记忆</td>
+</tr>
+<tr>
+<td><strong>控制权</strong></td>
+<td>Agent 完全控制记什么</td>
+<td>提取器根据对话分析决定</td>
+</tr>
+<tr>
+<td><strong>可用工具</strong></td>
+<td>默认暴露 <code>memory_add</code>、<code>memory_update</code>、<code>memory_search</code>、<code>memory_load</code>；delete/clear 可配置</td>
+<td>默认暴露 <code>memory_search</code>；<code>memory_load</code> 启用后暴露；已启用的写操作由提取器使用，但不对 Agent 暴露，除非显式配置</td>
+</tr>
+<tr>
+<td><strong>处理方式</strong></td>
+<td>同步 - 响应生成过程中</td>
+<td>异步 - 响应后由后台 worker 处理</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>精确控制、用户主导的记忆管理</td>
+<td>自然对话、无感知的记忆积累</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选择建议</strong>：</p>
+<ul>
+<li><strong>工具驱动模式</strong>：Agent 会根据对话内容自动判断是否需要调用记忆工具（如用户提到个人信息、偏好等），用户可见工具调用过程，适合需要精确控制记忆内容的场景</li>
+<li><strong>自动提取模式（推荐）</strong>：希望自然对话流、系统被动学习用户信息、简化用户体验</li>
+</ul>
+<h2 id="_4">核心价值</h2>
+<ul>
+<li><strong>上下文延续性</strong>：跨会话保留用户历史，避免重复询问和输入。</li>
+<li><strong>个性化服务</strong>：基于长期用户画像和偏好，提供定制化的响应和建议。</li>
+<li><strong>知识积累</strong>：将对话中的事实和经验转化为可复用的知识。</li>
+<li><strong>持久化存储</strong>：支持多种存储后端，确保数据安全可靠。</li>
+</ul>
+<h2 id="_5">使用场景</h2>
+<p>Memory 模块适用于需要跨会话保留用户信息和上下文的场景：</p>
+<h3 id="1-agent">场景 1：个性化客服 Agent</h3>
+<p><strong>需求</strong>：客服 Agent 需要记住用户信息、历史问题和偏好，提供一致性服务。</p>
+<p><strong>实现方式</strong>：</p>
+<ul>
+<li>首次对话：Agent 使用 <code>memory_add</code> 记录姓名、公司、联系方式</li>
+<li>记录用户偏好如"喜欢简短回答"、"技术背景"</li>
+<li>后续会话：Agent 使用 <code>memory_load</code> 加载用户信息，无需重复询问</li>
+<li>问题解决后：使用 <code>memory_update</code> 更新问题状态</li>
+</ul>
+<h3 id="2-agent">场景 2：学习陪伴 Agent</h3>
+<p><strong>需求</strong>：教育 Agent 需要追踪学生学习进度、知识掌握情况和兴趣。</p>
+<p><strong>实现方式</strong>：</p>
+<ul>
+<li>使用 <code>memory_add</code> 记录已掌握的知识点</li>
+<li>使用主题标签分类：<code>["数学", "几何"]</code>、<code>["编程", "Python"]</code></li>
+<li>使用 <code>memory_search</code> 查询相关知识，避免重复教学</li>
+<li>根据记忆调整教学策略，提供个性化学习路径</li>
+</ul>
+<h3 id="3-agent">场景 3：项目管理 Agent</h3>
+<p><strong>需求</strong>：项目管理 Agent 需要追踪项目信息、团队成员和任务进度。</p>
+<p><strong>实现方式</strong>：</p>
+<ul>
+<li>记录关键项目信息：<code>memory_add("项目 X 使用 Go 语言", ["项目", "技术栈"])</code></li>
+<li>记录团队成员角色：<code>memory_add("张三是后端负责人", ["团队", "角色"])</code></li>
+<li>使用 <code>memory_search</code> 快速查找相关信息</li>
+<li>项目完成后：使用 <code>memory_clear</code> 清空临时信息</li>
+</ul>
+<h2 id="_6">快速开始</h2>
+<h3 id="_7">环境要求</h3>
+<ul>
+<li>Go 1.21 或更高版本</li>
+<li>有效的 LLM API 密钥（OpenAI 兼容接口）</li>
+<li>存储后端（可选）：<ul>
+<li><strong>开发/测试</strong>：无需外部依赖（使用内存存储）</li>
+<li><strong>生产环境</strong>：Redis、MySQL 或 PostgreSQL 服务</li>
+</ul>
+</li>
+</ul>
+<h3 id="_8">配置环境变量</h3>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1"># LLM API 配置（必需）</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">"your-openai-api-key"</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_BASE_URL</span><span class="o">=</span><span class="s2">"https://api.openai.com/v1"</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1"># 存储后端配置（可选，根据选择的后端配置）</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="c1"># Redis</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="nb">export</span><span class="w"> </span><span class="nv">REDIS_ADDR</span><span class="o">=</span><span class="s2">"localhost:6379"</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="c1"># MySQL</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MYSQL_HOST</span><span class="o">=</span><span class="s2">"localhost"</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MYSQL_PORT</span><span class="o">=</span><span class="s2">"3306"</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MYSQL_USER</span><span class="o">=</span><span class="s2">"root"</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MYSQL_PASSWORD</span><span class="o">=</span><span class="s2">"password"</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MYSQL_DATABASE</span><span class="o">=</span><span class="s2">"memory_db"</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="c1"># PostgreSQL</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PG_HOST</span><span class="o">=</span><span class="s2">"localhost"</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PG_PORT</span><span class="o">=</span><span class="s2">"5432"</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PG_USER</span><span class="o">=</span><span class="s2">"postgres"</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PG_PASSWORD</span><span class="o">=</span><span class="s2">"password"</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PG_DATABASE</span><span class="o">=</span><span class="s2">"memory_db"</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="agentic-mode">工具驱动模式配置（Agentic Mode，可选）</h3>
+<p>工具驱动模式下，Agent 会根据对话内容自动判断是否需要调用记忆工具来管理记忆。配置分为三步：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span>
+<span class="normal"><a href="#__codelineno-1-22">22</a></span>
+<span class="normal"><a href="#__codelineno-1-23">23</a></span>
+<span class="normal"><a href="#__codelineno-1-24">24</a></span>
+<span class="normal"><a href="#__codelineno-1-25">25</a></span>
+<span class="normal"><a href="#__codelineno-1-26">26</a></span>
+<span class="normal"><a href="#__codelineno-1-27">27</a></span>
+<span class="normal"><a href="#__codelineno-1-28">28</a></span>
+<span class="normal"><a href="#__codelineno-1-29">29</a></span>
+<span class="normal"><a href="#__codelineno-1-30">30</a></span>
+<span class="normal"><a href="#__codelineno-1-31">31</a></span>
+<span class="normal"><a href="#__codelineno-1-32">32</a></span>
+<span class="normal"><a href="#__codelineno-1-33">33</a></span>
+<span class="normal"><a href="#__codelineno-1-34">34</a></span>
+<span class="normal"><a href="#__codelineno-1-35">35</a></span>
+<span class="normal"><a href="#__codelineno-1-36">36</a></span>
+<span class="normal"><a href="#__codelineno-1-37">37</a></span>
+<span class="normal"><a href="#__codelineno-1-38">38</a></span>
+<span class="normal"><a href="#__codelineno-1-39">39</a></span>
+<span class="normal"><a href="#__codelineno-1-40">40</a></span>
+<span class="normal"><a href="#__codelineno-1-41">41</a></span>
+<span class="normal"><a href="#__codelineno-1-42">42</a></span>
+<span class="normal"><a href="#__codelineno-1-43">43</a></span>
+<span class="normal"><a href="#__codelineno-1-44">44</a></span>
+<span class="normal"><a href="#__codelineno-1-45">45</a></span>
+<span class="normal"><a href="#__codelineno-1-46">46</a></span>
+<span class="normal"><a href="#__codelineno-1-47">47</a></span>
+<span class="normal"><a href="#__codelineno-1-48">48</a></span>
+<span class="normal"><a href="#__codelineno-1-49">49</a></span>
+<span class="normal"><a href="#__codelineno-1-50">50</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="s">"context"</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="s">"log"</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="w"> </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/memory/inmemory"</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/model"</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/model/openai"</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/runner"</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/session/inmemory"</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="w">    </span><span class="c1">// 步骤 1：创建记忆服务</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="w">    </span><span class="nx">memoryService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">NewMemoryService</span><span class="p">()</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="w">    </span><span class="c1">// 步骤 2：创建 Agent 并注册记忆工具</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="w">    </span><span class="nx">modelInstance</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">"deepseek-v4-flash"</span><span class="p">)</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="w">    </span><span class="nx">llmAgent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="w">        </span><span class="s">"memory-assistant"</span><span class="p">,</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithModel</span><span class="p">(</span><span class="nx">modelInstance</span><span class="p">),</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithDescription</span><span class="p">(</span><span class="s">"具有记忆能力的智能助手"</span><span class="p">),</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithInstruction</span><span class="p">(</span><span class="s">"记住用户的重要信息，并在需要时回忆起来。"</span><span class="p">),</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithTools</span><span class="p">(</span><span class="nx">memoryService</span><span class="p">.</span><span class="nx">Tools</span><span class="p">()),</span><span class="w"> </span><span class="c1">// 注册记忆工具。</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30"></a>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31"></a><span class="w">    </span><span class="c1">// 步骤 3：创建 Runner 并设置记忆服务</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32"></a><span class="w">    </span><span class="nx">sessionService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">inmemory</span><span class="p">.</span><span class="nx">NewSessionService</span><span class="p">()</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33"></a><span class="w">    </span><span class="nx">appRunner</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">runner</span><span class="p">.</span><span class="nx">NewRunner</span><span class="p">(</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34"></a><span class="w">        </span><span class="s">"memory-chat"</span><span class="p">,</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35"></a><span class="w">        </span><span class="nx">llmAgent</span><span class="p">,</span>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36"></a><span class="w">        </span><span class="nx">runner</span><span class="p">.</span><span class="nx">WithSessionService</span><span class="p">(</span><span class="nx">sessionService</span><span class="p">),</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37"></a><span class="w">        </span><span class="nx">runner</span><span class="p">.</span><span class="nx">WithMemoryService</span><span class="p">(</span><span class="nx">memoryService</span><span class="p">),</span><span class="w"> </span><span class="c1">// 设置记忆服务</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">appRunner</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40"></a>
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41"></a><span class="w">    </span><span class="c1">// 执行对话（Agent 会自动使用记忆工具）</span>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42"></a><span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"🧠 开始记忆对话..."</span><span class="p">)</span>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43"></a><span class="w">    </span><span class="nx">message</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">model</span><span class="p">.</span><span class="nx">NewUserMessage</span><span class="p">(</span><span class="s">"你好，我的名字是张三，我喜欢编程"</span><span class="p">)</span>
+</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44"></a><span class="w">    </span><span class="nx">eventChan</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">appRunner</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"user123"</span><span class="p">,</span><span class="w"> </span><span class="s">"session456"</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">)</span>
+</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46"></a><span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">"Failed to run agent: %v"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48"></a><span class="w">    </span><span class="c1">// 处理响应 ...</span>
+</span><span id="__span-1-49"><a id="__codelineno-1-49" name="__codelineno-1-49"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventChan</span>
+</span><span id="__span-1-50"><a id="__codelineno-1-50" name="__codelineno-1-50"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>对话示例</strong>：</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span>
+<span class="normal"><a href="#__codelineno-2-7">7</a></span>
+<span class="normal"><a href="#__codelineno-2-8">8</a></span>
+<span class="normal"><a href="#__codelineno-2-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>用户：我叫张三，在腾讯工作。
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a>Agent：你好张三！很高兴认识你。我会记住你在腾讯工作。
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>🔧 工具调用：memory_add
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a>   参数：{"memory": "用户叫张三，在腾讯工作", "topics": ["姓名", "工作"]}
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a>✅ 记忆添加成功。
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9"></a>Agent：我已经保存了这些信息。今天有什么可以帮你的？
+</span></code></pre></div></td></tr></table></div>
+<h3 id="auto-mode">自动提取模式配置（Auto Mode，推荐）</h3>
+<p>自动提取模式下，基于 LLM 的提取器分析对话并自动创建记忆。<strong>关键配置差异在步骤 1：多配置一个 Extractor</strong>。配置 Extractor 后，<code>Tools()</code> 会按 Auto 模式规则暴露工具，Runner 会在响应后触发后台记忆提取。</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span>
+<span class="normal"><a href="#__codelineno-3-24">24</a></span>
+<span class="normal"><a href="#__codelineno-3-25">25</a></span>
+<span class="normal"><a href="#__codelineno-3-26">26</a></span>
+<span class="normal"><a href="#__codelineno-3-27">27</a></span>
+<span class="normal"><a href="#__codelineno-3-28">28</a></span>
+<span class="normal"><a href="#__codelineno-3-29">29</a></span>
+<span class="normal"><a href="#__codelineno-3-30">30</a></span>
+<span class="normal"><a href="#__codelineno-3-31">31</a></span>
+<span class="normal"><a href="#__codelineno-3-32">32</a></span>
+<span class="normal"><a href="#__codelineno-3-33">33</a></span>
+<span class="normal"><a href="#__codelineno-3-34">34</a></span>
+<span class="normal"><a href="#__codelineno-3-35">35</a></span>
+<span class="normal"><a href="#__codelineno-3-36">36</a></span>
+<span class="normal"><a href="#__codelineno-3-37">37</a></span>
+<span class="normal"><a href="#__codelineno-3-38">38</a></span>
+<span class="normal"><a href="#__codelineno-3-39">39</a></span>
+<span class="normal"><a href="#__codelineno-3-40">40</a></span>
+<span class="normal"><a href="#__codelineno-3-41">41</a></span>
+<span class="normal"><a href="#__codelineno-3-42">42</a></span>
+<span class="normal"><a href="#__codelineno-3-43">43</a></span>
+<span class="normal"><a href="#__codelineno-3-44">44</a></span>
+<span class="normal"><a href="#__codelineno-3-45">45</a></span>
+<span class="normal"><a href="#__codelineno-3-46">46</a></span>
+<span class="normal"><a href="#__codelineno-3-47">47</a></span>
+<span class="normal"><a href="#__codelineno-3-48">48</a></span>
+<span class="normal"><a href="#__codelineno-3-49">49</a></span>
+<span class="normal"><a href="#__codelineno-3-50">50</a></span>
+<span class="normal"><a href="#__codelineno-3-51">51</a></span>
+<span class="normal"><a href="#__codelineno-3-52">52</a></span>
+<span class="normal"><a href="#__codelineno-3-53">53</a></span>
+<span class="normal"><a href="#__codelineno-3-54">54</a></span>
+<span class="normal"><a href="#__codelineno-3-55">55</a></span>
+<span class="normal"><a href="#__codelineno-3-56">56</a></span>
+<span class="normal"><a href="#__codelineno-3-57">57</a></span>
+<span class="normal"><a href="#__codelineno-3-58">58</a></span>
+<span class="normal"><a href="#__codelineno-3-59">59</a></span>
+<span class="normal"><a href="#__codelineno-3-60">60</a></span>
+<span class="normal"><a href="#__codelineno-3-61">61</a></span>
+<span class="normal"><a href="#__codelineno-3-62">62</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">    </span><span class="s">"context"</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">    </span><span class="s">"log"</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">    </span><span class="s">"time"</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/agent/llmagent"</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/memory/extractor"</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="w"> </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/memory/inmemory"</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/model"</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/model/openai"</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/runner"</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">    </span><span class="s">"trpc.group/trpc-go/trpc-agent-go/session/inmemory"</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="p">)</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">    </span><span class="c1">// 步骤 1：创建记忆服务（配置 Extractor 启用自动提取模式）</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="w">    </span><span class="nx">extractorModel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">"deepseek-v4-flash"</span><span class="p">)</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="w">    </span><span class="nx">memExtractor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">extractor</span><span class="p">.</span><span class="nx">NewExtractor</span><span class="p">(</span><span class="nx">extractorModel</span><span class="p">)</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">    </span><span class="nx">memoryService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">NewMemoryService</span><span class="p">(</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="w">        </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithExtractor</span><span class="p">(</span><span class="nx">memExtractor</span><span class="p">),</span><span class="w"> </span><span class="c1">// 关键：配置提取器</span>
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25"></a><span class="w">        </span><span class="c1">// 可选：配置异步 worker</span>
+</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26"></a><span class="w">        </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithAsyncMemoryNum</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="c1">// 配置记忆提取任务异步 worker 数量</span>
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27"></a><span class="w">        </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithMemoryQueueSize</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="c1">// 配置记忆提取任务队列大小</span>
+</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28"></a><span class="w">        </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithMemoryJobTimeout</span><span class="p">(</span><span class="mi">30</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">),</span><span class="w"> </span><span class="c1">// 配置记忆提取任务超时时间</span>
+</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">memoryService</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31"></a>
+</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32"></a><span class="w">    </span><span class="c1">// 步骤 2：创建 Agent 并注册记忆工具</span>
+</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33"></a><span class="w">    </span><span class="c1">// 注意：配置了 Extractor 后，默认只暴露 search 工具，load 可显式开启。</span>
+</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34"></a><span class="w">    </span><span class="nx">chatModel</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">"deepseek-v4-flash"</span><span class="p">)</span>
+</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35"></a><span class="w">    </span><span class="nx">llmAgent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span>
+</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36"></a><span class="w">        </span><span class="s">"memory-assistant"</span><span class="p">,</span>
+</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithModel</span><span class="p">(</span><span class="nx">chatModel</span><span class="p">),</span>
+</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithDescription</span><span class="p">(</span><span class="s">"具有自动记忆能力的智能助手"</span><span class="p">),</span>
+</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39"></a><span class="w">        </span><span class="nx">llmagent</span><span class="p">.</span><span class="nx">WithTools</span><span class="p">(</span><span class="nx">memoryService</span><span class="p">.</span><span class="nx">Tools</span><span class="p">()),</span><span class="w"> </span><span class="c1">// 默认只有 search 工具（load 可选）。</span>
+</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41"></a>
+</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42"></a><span class="w">    </span><span class="c1">// 步骤 3：创建 Runner 并设置记忆服务</span>
+</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43"></a><span class="w">    </span><span class="c1">// Runner 会在响应后自动触发记忆提取。</span>
+</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44"></a><span class="w">    </span><span class="nx">sessionService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">inmemory</span><span class="p">.</span><span class="nx">NewSessionService</span><span class="p">()</span>
+</span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45"></a><span class="w">    </span><span class="nx">appRunner</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">runner</span><span class="p">.</span><span class="nx">NewRunner</span><span class="p">(</span>
+</span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46"></a><span class="w">        </span><span class="s">"memory-chat"</span><span class="p">,</span>
+</span><span id="__span-3-47"><a id="__codelineno-3-47" name="__codelineno-3-47"></a><span class="w">        </span><span class="nx">llmAgent</span><span class="p">,</span>
+</span><span id="__span-3-48"><a id="__codelineno-3-48" name="__codelineno-3-48"></a><span class="w">        </span><span class="nx">runner</span><span class="p">.</span><span class="nx">WithSessionService</span><span class="p">(</span><span class="nx">sessionService</span><span class="p">),</span>
+</span><span id="__span-3-49"><a id="__codelineno-3-49" name="__codelineno-3-49"></a><span class="w">        </span><span class="nx">runner</span><span class="p">.</span><span class="nx">WithMemoryService</span><span class="p">(</span><span class="nx">memoryService</span><span class="p">),</span>
+</span><span id="__span-3-50"><a id="__codelineno-3-50" name="__codelineno-3-50"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-3-51"><a id="__codelineno-3-51" name="__codelineno-3-51"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">appRunner</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-3-52"><a id="__codelineno-3-52" name="__codelineno-3-52"></a>
+</span><span id="__span-3-53"><a id="__codelineno-3-53" name="__codelineno-3-53"></a><span class="w">    </span><span class="c1">// 执行对话（系统自动在后台提取记忆）</span>
+</span><span id="__span-3-54"><a id="__codelineno-3-54" name="__codelineno-3-54"></a><span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">"🧠 开始自动记忆对话..."</span><span class="p">)</span>
+</span><span id="__span-3-55"><a id="__codelineno-3-55" name="__codelineno-3-55"></a><span class="w">    </span><span class="nx">message</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">model</span><span class="p">.</span><span class="nx">NewUserMessage</span><span class="p">(</span><span class="s">"你好，我的名字是张三，我喜欢编程"</span><span class="p">)</span>
+</span><span id="__span-3-56"><a id="__codelineno-3-56" name="__codelineno-3-56"></a><span class="w">    </span><span class="nx">eventChan</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">appRunner</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="s">"user123"</span><span class="p">,</span><span class="w"> </span><span class="s">"session456"</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">)</span>
+</span><span id="__span-3-57"><a id="__codelineno-3-57" name="__codelineno-3-57"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-58"><a id="__codelineno-3-58" name="__codelineno-3-58"></a><span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">"Failed to run agent: %v"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-3-59"><a id="__codelineno-3-59" name="__codelineno-3-59"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-60"><a id="__codelineno-3-60" name="__codelineno-3-60"></a><span class="w">    </span><span class="c1">// 处理响应 ...</span>
+</span><span id="__span-3-61"><a id="__codelineno-3-61" name="__codelineno-3-61"></a><span class="w">    </span><span class="nx">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventChan</span>
+</span><span id="__span-3-62"><a id="__codelineno-3-62" name="__codelineno-3-62"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>对话示例</strong>：</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a>用户：我叫张三，在腾讯工作。
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a>Agent：你好张三！很高兴认识腾讯的朋友。今天有什么可以帮你的？
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a>（后台：提取器分析对话并自动创建记忆，用户无感知）
+</span></code></pre></div></td></tr></table></div>
+<h3 id="_9">可选的自动更新策略</h3>
+<p>内置提取器只有在显式配置策略时才启用新行为。未配置 option 的现有应用
+继续使用历史逻辑，不需要迁移：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1">// 保持原有行为。</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="nx">memExtractor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">extractor</span><span class="p">.</span><span class="nx">NewExtractor</span><span class="p">(</span><span class="nx">extractorModel</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<p>需要尽量保留长期历史时，可以显式开启 update policy：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nx">memExtractor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">extractor</span><span class="p">.</span><span class="nx">NewExtractor</span><span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">    </span><span class="nx">extractorModel</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nx">extractor</span><span class="p">.</span><span class="nx">WithUpdatePolicy</span><span class="p">(</span><span class="nx">extractor</span><span class="p">.</span><span class="nx">UpdatePolicyPreserveHistory</span><span class="p">),</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Policy 是内置 extractor 的能力，Auto memory worker 在构造时读取并固定该配置。
+<code>Metadata()</code> 只提供描述信息，不参与运行时控制。透明 decorator 可以实现
+<code>UnwrapMemoryExtractor() extractor.MemoryExtractor</code>，让 worker 读取被包装的内置
+extractor 能力；支持多层合作式 decorator。自定义 extractor、不合作的 decorator、
+返回 nil 或形成循环的 unwrap 均安全回退到 Merge Similar。</p>
+<p>Update policy 只约束后台 Auto extraction 产生的操作。Agent 或应用显式调用
+<code>memory_update</code> 时，工具语义保持不变。</p>
+<table>
+<thead>
+<tr>
+<th>Update policy</th>
+<th>Auto extraction 行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UpdatePolicyMergeSimilar</code></td>
+<td>使用现有的相似度 reconcile 逻辑；这是默认值。</td>
+</tr>
+<tr>
+<td><code>UpdatePolicyPreserveHistory</code></td>
+<td>完全重复时不写入；只更新无冲突的增量信息；变化内容单独追加；extractor prompt 仅允许在用户明确请求时选择 delete/clear。</td>
+</tr>
+<tr>
+<td><code>UpdatePolicyAppendOnly</code></td>
+<td>最终只产生非重复 add：update 转为 add，delete/clear 被过滤。</td>
+</tr>
+</tbody>
+</table>
+<p>Merge Similar 在检索 existing memories 时保持原有的 user-only query。
+Preserve History 和 Append Only 使用 user 与 assistant 的对话文本检索候选，
+但排除 tool protocol message；该 query 使用 UTF-8 安全的方式限制为 7 KiB。</p>
+<p>Preserve History 的候选 reconcile 只比较已经提供给 extractor 的 existing entries。
+精确重复检查还会考虑同一次 extraction 中已经接受的 operation，但不会合并不同的
+operation。检索分数只能用于候选排序，不能单独决定 update 或丢弃。事件身份、
+有意义的旧 token、数值、日期、否定关系、参与者和地点必须兼容；topics 只有在
+update 已通过检查后才合并。
+方向性 token coverage 的边界（旧记忆 <code>0.95</code>、候选记忆 <code>0.70</code>）是保守的实现
+启发式，并非通过 benchmark 调参得到。无法确认属于安全补充时，该策略会将候选
+保留为独立记忆。
+例如，同一次且同一日期的访问补充具体时刻可以更新；更换雇主或另一个日期的访问
+会追加为新条目。Preserve History 对 Delete 和 Clear 使用与 Merge Similar 相同的
+运行时处理：extractor 选中的 operation 会原样通过。策略专用 prompt 要求模型仅在
+用户明确提出有范围的遗忘请求时选择 Delete，并仅在用户明确要求遗忘全部存储信息时
+选择 Clear。worker 不再使用正则表达式重新解释自然语言中的删除意图。</p>
+<p>该 update policy 不会修改 <code>memory.Service</code>、<code>MemoryExtractor</code>、持久化 JSON、memory ID
+或数据库 schema，也不会重写存量记忆。所有 policy 都保持 Auto memory 原有的
+best-effort 持久化行为：单个写入失败会记录日志，后续 operation 继续执行；批次处理
+完成后推进 session extraction watermark。</p>
+<p>回退时删除该 option，或将其设置为 <code>UpdatePolicyMergeSimilar</code> 即可，不需要数据迁移。</p>
+<h3 id="assistant-episode">可选的 Assistant Episode 提取</h3>
+<p>Auto extraction 默认使用标准 fact 和 episode 工具。如果应用还需要在后续对话中
+召回 assistant 曾经提供的可复用信息，可以在构造 extractor 时显式开启 assistant
+episode 提取：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span>
+<span class="normal"><a href="#__codelineno-7-6">6</a></span>
+<span class="normal"><a href="#__codelineno-7-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nx">memExtractor</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">extractor</span><span class="p">.</span><span class="nx">NewExtractor</span><span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">    </span><span class="nx">extractorModel</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="nx">extractor</span><span class="p">.</span><span class="nx">WithAssistantEpisodeExtraction</span><span class="p">(),</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="p">)</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="nx">memoryService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">NewMemoryService</span><span class="p">(</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithExtractor</span><span class="p">(</span><span class="nx">memExtractor</span><span class="p">),</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<p>该 option 使用两个彼此隔离的提取阶段。第一阶段继续使用标准 memory tools；如果
+配置了 <code>WithUpdatePolicy</code> 或 enabled tools，也会应用对应的工具约束。Assistant
+消息会作为上下文保留，用于理解指代、确认和简短的 user 回复，但只有 user 消息
+能够提供或授权普通 memory operation。收集 session delta 时，功能开启后只使用每个
+模型响应事件的 primary choice，不会把同一响应的备选 choice 当作连续的 assistant
+回复。随后，提取器会按时间顺序检查当前 extraction delta 中符合条件的
+user/assistant pair。确定性预筛选与语言无关，只检查响应形态而不匹配请求关键词：
+assistant 响应包含至少两个 Markdown 或编号列表项，或者引入了 user 请求中没有的
+数值 token 时，该 pair 会进入第二阶段。第二阶段 prompt 再对结果是否持久、可复用
+作最终语义判断。没有列表或新数值的单段 prose 结果目前不会触发第二阶段。
+写入生成的 episode 前，确定性护栏会将 ASCII 数字及其紧邻的正负号、货币符号和百分号
+与原始回答对照。自然语言单位和货币名称由第二阶段 prompt 负责，prompt 会要求按原文保留。
+Eligible pair 按时间顺序进入私有的单次请求 pair 数量和 source 体积预算；超出预算的候选会被忽略，因为
+assistant 结果提取采用 best-effort 语义。入选的 pair 会合并到一次第二阶段请求中，
+并且只暴露私有的 <code>memory_assistant_episode</code> 工具。该工具不会暴露给应用的 Agent。
+通过 <code>WithPrompt</code> 或 <code>SetPrompt</code> 配置的应用提取约束同样适用于第二阶段请求。普通
+阶段产生 Clear operation 时，其请求内 <code>source_user_index</code> 对应位置及之前的候选 pair
+会被排除。Delete operation 只排除请求内 <code>affected_source_user_indexes</code> 明确列出的
+pair，不影响无关 pair。如果破坏性 operation 的请求内作用范围缺失或非法，提取器会
+保守地跳过本次可选阶段。该判断使用请求内的 operation 来源信息，不依赖针对特定
+语言的对话意图解析。</p>
+<p>Assistant 输出会被记录为“带归属的对话历史”，而不是已经验证的事实或用户偏好。
+框架将每个通过校验的调用固定转换为普通 <code>KindEpisode</code> add 操作，将 participants
+设置为 <code>User</code> 和 <code>Assistant</code>；如果 extraction context 带有 reference date，则将其
+作为 event time。下面的正文前缀只用于描述，不承载可信来源，也不会赋予特殊的
+reconcile 行为。例如：</p>
+<div class="language-json highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">"memory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Assistant-provided conversation episode: 当用户询问适合紧凑厨房的产品时，assistant 推荐了 Alpha 和 Beta。"</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"episode"</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">  </span><span class="nt">"participants"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"User"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Assistant"</span><span class="p">]</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p>第二阶段模型只能提供 episode 正文和可选的检索 topics，不能覆盖 memory kind、
+participants、event time 或 location。正文为空、超过 4,096 bytes，或者 ASCII
+数值的规范化数值及紧邻的正负号、货币符号或百分号无法在当前 conversation pair 中
+找到依据时，调用会被拒绝。自然语言单位和货币名称由第二阶段 prompt 约束，不属于
+确定性校验器的检查范围。为了限制每条
+source message 对可选请求的体积贡献，每条消息都会被表示为确定性的 8,192-byte
+摘录，并保留首尾内容。</p>
+<p>Assistant 请求使用早于父 extraction deadline 结束的子 deadline，为第一阶段普通
+operation 的持久化预留时间。子 deadline 到期、可选请求失败或 callback 失败都只会
+记录日志，并保留第一阶段已经生成的普通 operation；只有父 context 真正取消时才会
+中止整个提取。工具参数非法、正文过长或数量缺少依据等确定性模型输出拒绝只跳过对应
+的 assistant episode；同一响应中某一 pair 的无效调用不会丢弃其他 pair 的有效调用。</p>
+<p>该功能与存储后端无关，不会新增 memory kind、字段、数据库列、数据表或迁移。同一
+delta 中入选的 pair 共用一次第二阶段模型请求，因此每个 delta 最多调用模型两次：
+一次普通提取和一次 assistant 提取。普通对话仍只有一次
+extraction 调用。该 option 在 extractor 生命周期内不可修改，并由 Auto memory
+worker 在构造时读取和固定；它不会改变 extractor 的描述性 <code>Metadata()</code>。需要关闭
+时，应重新构造未传入该 option 的 extractor 和 memory service。透明 decorator
+可以实现 <code>UnwrapMemoryExtractor() extractor.MemoryExtractor</code> 以保留此配置；自定义
+extractor 或不合作的 decorator 使用普通单阶段提取。返回 nil 或形成循环的 unwrap
+也会安全回退为关闭状态。此前已经
+保存的 assistant episode 仍是普通 episodic memory，会继续参与正常检索、提取上下文
+和 reconcile。可选阶段产生的 operation 与其他 memory operation 一样，经过所选
+update policy 和 reconcile 路径。</p>
+<h3 id="_10">两种模式配置对比</h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>工具驱动模式（Agentic）</th>
+<th>自动提取模式（Auto）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>步骤 1</strong></td>
+<td><code>NewMemoryService()</code></td>
+<td><code>NewMemoryService(WithExtractor(ext))</code></td>
+</tr>
+<tr>
+<td><strong>步骤 2</strong></td>
+<td><code>WithTools(memoryService.Tools())</code></td>
+<td><code>WithTools(memoryService.Tools())</code></td>
+</tr>
+<tr>
+<td><strong>步骤 3</strong></td>
+<td><code>WithMemoryService(memoryService)</code></td>
+<td><code>WithMemoryService(memoryService)</code></td>
+</tr>
+<tr>
+<td><strong>可用工具</strong></td>
+<td>默认 add/update/search/load；delete/clear 可配置</td>
+<td>默认暴露 search；load 启用后暴露；已启用的写操作由提取器使用，但不对 Agent 暴露，除非显式配置</td>
+</tr>
+<tr>
+<td><strong>记忆创建</strong></td>
+<td>Agent 主动调用工具</td>
+<td>后台自动提取</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_11">核心概念</h2>
+<p><a href="https://github.com/trpc-group/trpc-agent-go/tree/main/memory">memory 模块</a> 是 tRPC-Agent-Go 框架的记忆管理核心，提供完整的记忆存储和检索能力。</p>
+<h3 id="_12">架构设计</h3>
+<p>Memory 模块采用分层设计，由以下核心组件组成：</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-9-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-9-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-9-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-9-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-9-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-9-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-9-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-9-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-9-10">10</a></span>
+<span class="normal"><a href="#__codelineno-9-11">11</a></span>
+<span class="normal"><a href="#__codelineno-9-12">12</a></span>
+<span class="normal"><a href="#__codelineno-9-13">13</a></span>
+<span class="normal"><a href="#__codelineno-9-14">14</a></span>
+<span class="normal"><a href="#__codelineno-9-15">15</a></span>
+<span class="normal"><a href="#__codelineno-9-16">16</a></span>
+<span class="normal"><a href="#__codelineno-9-17">17</a></span>
+<span class="normal"><a href="#__codelineno-9-18">18</a></span>
+<span class="normal"><a href="#__codelineno-9-19">19</a></span>
+<span class="normal"><a href="#__codelineno-9-20">20</a></span>
+<span class="normal"><a href="#__codelineno-9-21">21</a></span>
+<span class="normal"><a href="#__codelineno-9-22">22</a></span>
+<span class="normal"><a href="#__codelineno-9-23">23</a></span>
+<span class="normal"><a href="#__codelineno-9-24">24</a></span>
+<span class="normal"><a href="#__codelineno-9-25">25</a></span>
+<span class="normal"><a href="#__codelineno-9-26">26</a></span>
+<span class="normal"><a href="#__codelineno-9-27">27</a></span>
+<span class="normal"><a href="#__codelineno-9-28">28</a></span>
+<span class="normal"><a href="#__codelineno-9-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a>┌─────────────────────────────────────────────────────────────┐
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>│                         Agent                                │
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a>│  ┌──────────────────────────────────────────────────────┐   │
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a>│  │          Memory Tools（6 个工具）                     │   │
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>│  │  add | update | delete | search | load | clear       │   │
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a>│  └──────────────────────────────────────────────────────┘   │
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a>└─────────────────────────────────────────────────────────────┘
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a>                              │
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a>                              ↓
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a>┌─────────────────────────────────────────────────────────────┐
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a>│                    Memory Service                            │
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12"></a>│  • UserKey: &lt;appName, userID&gt; 隔离                         │
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13"></a>│  • Entry: 记忆条目（ID、内容、主题、时间戳）                │
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14"></a>│  • Operations: Add、Update、Delete、Search、Load、Clear    │
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a>└─────────────────────────────────────────────────────────────┘
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a>                              │
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a>                              ↓
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a>┌─────────────────────────────────────────────────────────────┐
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19"></a>│                   Storage Backends                           │
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20"></a>│  • InMemory: 内存存储（开发/测试）                          │
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21"></a>│  • SQLite: 本地文件数据库（单机持久化）                     │
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22"></a>│  • SQLiteVec: SQLite + 向量检索（本地语义搜索）             │
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23"></a>│  • Redis: 高性能缓存（生产环境）                            │
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24"></a>│  • MySQL: 关系型数据库（ACID 保证）                        │
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25"></a>│  • MySQLVec: MySQL + 向量检索（语义搜索）                  │
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26"></a>│  • PostgreSQL: 关系型数据库（JSONB 支持）                  │
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27"></a>│  • pgvector: PostgreSQL + 向量检索（语义搜索）              │
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28"></a>│  • ChromaDB: REST 向量数据库（余弦与混合检索）             │
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29"></a>└─────────────────────────────────────────────────────────────┘
+</span></code></pre></div></td></tr></table></div>
+<p><strong>工作流程</strong>：</p>
+<ol>
+<li>Agent 通过 Memory Tools 与 Memory Service 交互</li>
+<li>Memory Service 管理记忆的生命周期（CRUD 操作）</li>
+<li>记忆以 Entry 形式存储，包含内容、主题、时间戳等</li>
+<li>Memory ID 通过内容、用户维度和规范化事件元数据的 SHA256 哈希生成，确保幂等性</li>
+<li>Storage Backends 提供持久化，支持多种存储选项</li>
+</ol>
+<h3 id="_13">核心组件</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>描述</th>
+<th>技术细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Memory Service</strong></td>
+<td>核心记忆管理服务，提供 CRUD 能力</td>
+<td>实现统一 Service 接口，支持多种存储后端</td>
+</tr>
+<tr>
+<td><strong>UserKey</strong></td>
+<td>用户标识符，由 <code>appName</code> 和 <code>userID</code> 组成</td>
+<td>记忆隔离的最小单位，确保应用/用户间记忆不干扰</td>
+</tr>
+<tr>
+<td><strong>Entry</strong></td>
+<td>记忆条目，包含完整记忆信息</td>
+<td>包括 ID、内容、主题、created_at、updated_at 字段</td>
+</tr>
+<tr>
+<td><strong>Memory ID</strong></td>
+<td>记忆的唯一标识符</td>
+<td>基于内容、用户维度和规范化事件元数据的 SHA256 哈希；主题不参与身份</td>
+</tr>
+<tr>
+<td><strong>Topics</strong></td>
+<td>记忆的主题标签</td>
+<td>用于分类和检索，支持多个标签</td>
+</tr>
+<tr>
+<td><strong>Memory Tools</strong></td>
+<td>Agent 可调用的记忆操作工具</td>
+<td>包括 add、update、delete、search、load、clear</td>
+</tr>
+<tr>
+<td><strong>Storage Backend</strong></td>
+<td>存储后端实现</td>
+<td>支持 InMemory、SQLite、SQLiteVec、Redis、MySQL、MySQLVec、PostgreSQL、pgvector、ChromaDB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_14">关键流程</h3>
+<h4 id="_15">记忆的生命周期</h4>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-10-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-10-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-10-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-10-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-10-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-10-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-10-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-10-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-10-10">10</a></span>
+<span class="normal"><a href="#__codelineno-10-11">11</a></span>
+<span class="normal"><a href="#__codelineno-10-12">12</a></span>
+<span class="normal"><a href="#__codelineno-10-13">13</a></span>
+<span class="normal"><a href="#__codelineno-10-14">14</a></span>
+<span class="normal"><a href="#__codelineno-10-15">15</a></span>
+<span class="normal"><a href="#__codelineno-10-16">16</a></span>
+<span class="normal"><a href="#__codelineno-10-17">17</a></span>
+<span class="normal"><a href="#__codelineno-10-18">18</a></span>
+<span class="normal"><a href="#__codelineno-10-19">19</a></span>
+<span class="normal"><a href="#__codelineno-10-20">20</a></span>
+<span class="normal"><a href="#__codelineno-10-21">21</a></span>
+<span class="normal"><a href="#__codelineno-10-22">22</a></span>
+<span class="normal"><a href="#__codelineno-10-23">23</a></span>
+<span class="normal"><a href="#__codelineno-10-24">24</a></span>
+<span class="normal"><a href="#__codelineno-10-25">25</a></span>
+<span class="normal"><a href="#__codelineno-10-26">26</a></span>
+<span class="normal"><a href="#__codelineno-10-27">27</a></span>
+<span class="normal"><a href="#__codelineno-10-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a>┌──────────────┐
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a>│ 1. 创建记忆   │  用户对话 → Agent 判断 → 调用 memory_add
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a>└──────┬───────┘
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a>       │
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a>       ↓
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6"></a>┌──────────────┐
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7"></a>│ 2. 生成 ID   │  SHA256（内容 + 用户维度 + 事件元数据） → 唯一标识符
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8"></a>└──────┬───────┘
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9"></a>       │
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10"></a>       ↓
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11"></a>┌──────────────┐
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12"></a>│ 3. 存储记忆   │  Entry → Storage Backend（InMemory/SQLite/SQLiteVec/Redis/MySQL/MySQLVec/PostgreSQL/pgvector/ChromaDB）
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13"></a>└──────┬───────┘
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14"></a>       │
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15"></a>       ↓
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16"></a>┌──────────────┐
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17"></a>│ 4. 检索记忆   │  memory_load（时间排序）或 memory_search（关键词匹配）
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18"></a>└──────┬───────┘
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19"></a>       │
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20"></a>       ↓
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21"></a>┌──────────────┐
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22"></a>│ 5. 更新记忆   │  相同 ID 覆盖更新，刷新 updated_at
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23"></a>└──────┬───────┘
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24"></a>       │
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25"></a>       ↓
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26"></a>┌──────────────┐
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27"></a>│ 6. 删除记忆   │  硬删除或软删除（取决于配置）
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28"></a>└──────────────┘
+</span></code></pre></div></td></tr></table></div>
+<h4 id="_16">记忆检索流程</h4>
+<p><strong>Load（加载记忆）</strong>：</p>
+<ol>
+<li>根据 UserKey 查询该用户的所有记忆</li>
+<li>按 <code>updated_at</code> 降序排序（最近更新的在前）</li>
+<li>返回前 N 条记忆（默认 10 条）</li>
+</ol>
+<p><strong>Search（搜索记忆）</strong>：</p>
+<ol>
+<li>将查询文本分词（支持中英文）</li>
+<li>过滤停用词（a、the、is、of 等）</li>
+<li>对每条记忆的内容和主题进行匹配</li>
+<li>返回匹配的记忆，优先按相关性得分排序，分数相同时再按更新时间排序</li>
+</ol>
+<h4 id="id">记忆 ID 生成策略</h4>
+<p>记忆 ID 基于内容、appName、userID 和规范化事件元数据的 SHA256 哈希生成；主题不参与 ID，因此调整标签不会生成新记忆：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-11-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-11-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-11-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-11-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-11-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-11-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-11-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-11-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-11-10">10</a></span>
+<span class="normal"><a href="#__codelineno-11-11">11</a></span>
+<span class="normal"><a href="#__codelineno-11-12">12</a></span>
+<span class="normal"><a href="#__codelineno-11-13">13</a></span>
+<span class="normal"><a href="#__codelineno-11-14">14</a></span>
+<span class="normal"><a href="#__codelineno-11-15">15</a></span>
+<span class="normal"><a href="#__codelineno-11-16">16</a></span>
+<span class="normal"><a href="#__codelineno-11-17">17</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="c1">// 生成逻辑（伪代码，省略错误处理）</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="nx">content</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">"memory:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">记忆内容</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="nx">content</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"|app:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">appName</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="nx">content</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"|user:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">userID</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="k">if</span><span class="w"> </span><span class="nx">kind</span><span class="w"> </span><span class="nx">需要参与身份</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">    </span><span class="nx">content</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"|kind:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">kind</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="p">}</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="k">if</span><span class="w"> </span><span class="nx">eventTime</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="w">    </span><span class="nx">content</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"|event_time:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">eventTime</span><span class="p">.</span><span class="nx">UTC</span><span class="p">().</span><span class="nx">Format</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">RFC3339</span><span class="p">)</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="p">}</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">participants</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="w">    </span><span class="nx">content</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"|participants:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">join</span><span class="p">(</span><span class="nx">排序并去重后的</span><span class="w"> </span><span class="nx">participants</span><span class="p">,</span><span class="w"> </span><span class="s">","</span><span class="p">)</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="p">}</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="k">if</span><span class="w"> </span><span class="nx">location</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">""</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15"></a><span class="w">    </span><span class="nx">content</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">"|location:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">TrimSpace</span><span class="p">(</span><span class="nx">location</span><span class="p">)</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16"></a><span class="p">}</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17"></a><span class="nx">memoryID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">SHA256</span><span class="p">(</span><span class="nx">content</span><span class="p">)</span><span class="w"> </span><span class="c1">// 64 位十六进制字符串</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>特性</strong>：</p>
+<ul>
+<li><strong>幂等性</strong>：内容和身份元数据都相同时，重复添加不会创建新记忆，而是覆盖更新</li>
+<li><strong>一致性</strong>：内容和身份元数据相同，即使记录的创建时间不同也会产生相同 ID；
+  如果 <code>eventTime</code>、<code>participants</code>、<code>location</code> 等身份元数据变化，ID 也会变化</li>
+<li><strong>去重</strong>：天然支持去重，避免冗余存储</li>
+</ul>
+<h2 id="_17">存储后端</h2>
+<p>具体配置请查看对应后端文档。通用的 Agent 接入、提取模式和工具行为请参阅
+<a href="usage/">使用与配置</a>。</p>
+<ul>
+<li><a href="inmemory/">内存存储</a></li>
+<li><a href="sqlite/">SQLite</a></li>
+<li><a href="sqlitevec/">SQLiteVec</a></li>
+<li><a href="redis/">Redis</a></li>
+<li><a href="mysql/">MySQL</a></li>
+<li><a href="mysqlvec/">MySQL Vector</a></li>
+<li><a href="postgres/">PostgreSQL</a></li>
+<li><a href="pgvector/">pgvector</a></li>
+<li><a href="chromadb/">ChromaDB</a></li>
+</ul>
+<h2 id="_18">后端对比与选择</h2>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>InMemory</th>
+<th>SQLite</th>
+<th>SQLiteVec</th>
+<th>Redis</th>
+<th>MySQL</th>
+<th>MySQLVec</th>
+<th>PostgreSQL</th>
+<th>pgvector</th>
+<th>ChromaDB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>持久化</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>分布式</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>事务</strong></td>
+<td>❌</td>
+<td>✅ ACID</td>
+<td>✅ ACID</td>
+<td>部分</td>
+<td>✅ ACID</td>
+<td>✅ ACID</td>
+<td>✅ ACID</td>
+<td>✅ ACID</td>
+<td>尽力保证</td>
+</tr>
+<tr>
+<td><strong>查询</strong></td>
+<td>简单</td>
+<td>SQL</td>
+<td>SQL+向量</td>
+<td>中等</td>
+<td>SQL</td>
+<td>SQL+向量</td>
+<td>SQL</td>
+<td>SQL+向量</td>
+<td>向量+本地</td>
+</tr>
+<tr>
+<td><strong>JSON</strong></td>
+<td>❌</td>
+<td>基础</td>
+<td>基础</td>
+<td>基础</td>
+<td>JSON</td>
+<td>JSON</td>
+<td>JSONB</td>
+<td>JSONB</td>
+<td>Metadata</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>极高</td>
+<td>中高</td>
+<td>中高</td>
+<td>高</td>
+<td>中高</td>
+<td>中高</td>
+<td>中高</td>
+<td>中高</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>配置</strong></td>
+<td>零配置</td>
+<td>简单</td>
+<td>中等</td>
+<td>简单</td>
+<td>中等</td>
+<td>中等</td>
+<td>中等</td>
+<td>中等</td>
+<td>中等</td>
+</tr>
+<tr>
+<td><strong>软删除</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>开发测试</td>
+<td>本地持久化</td>
+<td>本地向量</td>
+<td>高并发</td>
+<td>企业应用</td>
+<td>MySQL 向量</td>
+<td>高级特性</td>
+<td>向量搜索</td>
+<td>向量服务</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选择建议</strong>：</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a>开发/测试 → InMemory（零配置，快速启动）
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>本地持久化 → SQLite（单文件数据库，易部署）
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a>本地向量检索 → SQLiteVec（单文件数据库 + embedding）
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a>高并发读写 → Redis（内存级性能）
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a>需要 ACID → SQLite/SQLiteVec/MySQL/PostgreSQL（事务保证）
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a>复杂 JSON → PostgreSQL（JSONB 索引和查询）
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7"></a>MySQL 向量检索 → MySQLVec（可用时使用原生 VECTOR，否则使用 BLOB 降级路径）
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8"></a>向量搜索 → pgvector（基于 embedding 的相似度搜索）
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9"></a>向量服务 → ChromaDB（基于 REST 的余弦与混合检索）
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10"></a>审计追踪 → MySQL/MySQLVec/PostgreSQL/pgvector/ChromaDB/SQLite/SQLiteVec（软删除支持）
+</span></code></pre></div></td></tr></table></div>
+<h2 id="_19">常见问题</h2>
+<h3 id="memory-session">Memory 与 Session 的区别</h3>
+<p>这是最常见的疑问。Memory 和 Session 解决不同的问题：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Memory（记忆）</th>
+<th>Session（会话）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>定位</strong></td>
+<td>长期用户档案</td>
+<td>临时对话上下文</td>
+</tr>
+<tr>
+<td><strong>隔离维度</strong></td>
+<td><code>&lt;appName, userID&gt;</code></td>
+<td><code>&lt;appName, userID, sessionID&gt;</code></td>
+</tr>
+<tr>
+<td><strong>生命周期</strong></td>
+<td>跨会话持久化</td>
+<td>单次会话内有效</td>
+</tr>
+<tr>
+<td><strong>存储内容</strong></td>
+<td>用户画像、偏好、事实</td>
+<td>对话历史、消息记录</td>
+</tr>
+<tr>
+<td><strong>数据量</strong></td>
+<td>小（几十到几百条）</td>
+<td>大（几十到几千条消息）</td>
+</tr>
+<tr>
+<td><strong>使用场景</strong></td>
+<td>“记住用户是谁”</td>
+<td>“记住说了什么”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例</strong>：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span>
+<span class="normal"><a href="#__codelineno-13-6">6</a></span>
+<span class="normal"><a href="#__codelineno-13-7">7</a></span>
+<span class="normal"><a href="#__codelineno-13-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="c1">// Memory：跨会话保留</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="nx">memory</span><span class="p">.</span><span class="nx">AddMemory</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">userKey</span><span class="p">,</span><span class="w"> </span><span class="s">"用户是后端工程师"</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">"职业"</span><span class="p">})</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="c1">// Session：单次会话有效</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="nx">session</span><span class="p">.</span><span class="nx">AddMessage</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">sessionKey</span><span class="p">,</span><span class="w"> </span><span class="nx">userMessage</span><span class="p">(</span><span class="s">"今天天气怎么样？"</span><span class="p">))</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="nx">session</span><span class="p">.</span><span class="nx">AddMessage</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">sessionKey</span><span class="p">,</span><span class="w"> </span><span class="nx">agentMessage</span><span class="p">(</span><span class="s">"今天晴天"</span><span class="p">))</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7"></a>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="c1">// 新会话：Memory 保留，Session 重置</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="memory-id">Memory ID 的幂等性</h3>
+<p>Memory ID 基于「内容 + appName + userID + 规范化事件元数据」的 SHA256 哈希生成；主题不参与 ID，因此同一用户下相同内容即使 topics 改变也会产生相同 ID：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span>
+<span class="normal"><a href="#__codelineno-14-5">5</a></span>
+<span class="normal"><a href="#__codelineno-14-6">6</a></span>
+<span class="normal"><a href="#__codelineno-14-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="c1">// 第一次添加</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="nx">memory</span><span class="p">.</span><span class="nx">AddMemory</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">userKey</span><span class="p">,</span><span class="w"> </span><span class="s">"用户喜欢编程"</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">"爱好"</span><span class="p">})</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="c1">// 生成 ID：abc123...</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="c1">// 第二次添加相同内容，但使用不同 topics</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="nx">memory</span><span class="p">.</span><span class="nx">AddMemory</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">userKey</span><span class="p">,</span><span class="w"> </span><span class="s">"用户喜欢编程"</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">"兴趣"</span><span class="p">})</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="c1">// 生成相同 ID：abc123...，覆盖更新，刷新 topics 和 updated_at</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>影响</strong>：</p>
+<ul>
+<li>✅ <strong>天然去重</strong>：避免冗余存储</li>
+<li>✅ <strong>幂等操作</strong>：内容和身份元数据不变时，重复添加不会创建多条记录</li>
+<li>⚠️ <strong>覆盖更新</strong>：无法追加相同内容（如需追加，可在内容中加时间戳或序号）</li>
+</ul>
+<h3 id="_20">搜索行为说明</h3>
+<p>搜索行为取决于后端：</p>
+<ul>
+<li>对 <code>inmemory</code> / <code>redis</code> / <code>mysql</code> / <code>postgres</code>：<code>SearchMemories</code> 使用 <strong>BM25 风格 lexical 关键词匹配</strong>（不是语义搜索）。</li>
+<li>对 <code>pgvector</code> / <code>mysqlvec</code> / <code>sqlitevec</code>：<code>SearchMemories</code> 使用<strong>向量相似度检索</strong>，并且需要配置 Embedder。</li>
+<li>对 <code>chromadb</code>：<code>SearchMemories</code> 使用 ChromaDB 向量检索，并支持 kind 回退和混合检索。</li>
+</ul>
+<p><strong>Lexical 匹配细节</strong>（非向量后端）：</p>
+<p><strong>英文分词</strong>：转小写 → 过滤停用词（a、the、is 等）→ 空格分割</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1">1</a></span>
+<span class="normal"><a href="#__codelineno-15-2">2</a></span>
+<span class="normal"><a href="#__codelineno-15-3">3</a></span>
+<span class="normal"><a href="#__codelineno-15-4">4</a></span>
+<span class="normal"><a href="#__codelineno-15-5">5</a></span>
+<span class="normal"><a href="#__codelineno-15-6">6</a></span>
+<span class="normal"><a href="#__codelineno-15-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="c1">// 可以找到</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="nx">记忆</span><span class="err">：</span><span class="s">"User likes programming"</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="nx">搜索</span><span class="err">：</span><span class="s">"programming"</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="nx">匹配</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a><span class="c1">// 找不到</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="nx">记忆</span><span class="err">：</span><span class="s">"User likes programming"</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="nx">搜索</span><span class="err">：</span><span class="s">"coding"</span><span class="w"> </span><span class="err">❌</span><span class="w"> </span><span class="nx">不匹配</span><span class="err">（</span><span class="nx">语义相近但词不同</span><span class="err">）</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>中文分词</strong>：优先使用 <code>gse</code> 词级分词，并补充低权重 CJK
+字符 trigram 召回</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1">1</a></span>
+<span class="normal"><a href="#__codelineno-16-2">2</a></span>
+<span class="normal"><a href="#__codelineno-16-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="nx">记忆</span><span class="err">：</span><span class="s">"用户喜欢编程"</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="nx">搜索</span><span class="err">：</span><span class="s">"编程"</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="nx">匹配</span><span class="err">（</span><span class="nx">词级命中</span><span class="err">）</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="nx">搜索</span><span class="err">：</span><span class="s">"写代码"</span><span class="w"> </span><span class="err">❌</span><span class="w"> </span><span class="nx">不匹配</span><span class="err">（</span><span class="nx">词不同</span><span class="err">）</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>限制</strong>（非向量后端）：</p>
+<ul>
+<li>这些后端均在<strong>应用层</strong>过滤和排序（[O(n)] 复杂度）</li>
+<li>数据量大时性能受影响</li>
+<li>不支持语义相似度搜索</li>
+<li>排序是 <strong>BM25 风格关键词打分 + query coverage + 有序短语加分</strong>，
+  仍然属于 lexical search，不是向量语义检索</li>
+</ul>
+<p><strong>建议</strong>：</p>
+<ul>
+<li>使用明确关键词和主题标签提高命中率</li>
+<li>如需语义相似度检索，使用 pgvector、mysqlvec、sqlitevec 或 ChromaDB 后端</li>
+</ul>
+<h3 id="_21">软删除的注意事项</h3>
+<p><strong>支持情况</strong>：</p>
+<ul>
+<li>✅ MySQL、MySQLVec、PostgreSQL、pgvector、SQLite、SQLiteVec、ChromaDB：支持软删除</li>
+<li>❌ InMemory、Redis：不支持（只有硬删除）</li>
+</ul>
+<p><strong>软删除配置</strong>：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1">1</a></span>
+<span class="normal"><a href="#__codelineno-17-2">2</a></span>
+<span class="normal"><a href="#__codelineno-17-3">3</a></span>
+<span class="normal"><a href="#__codelineno-17-4">4</a></span>
+<span class="normal"><a href="#__codelineno-17-5">5</a></span>
+<span class="normal"><a href="#__codelineno-17-6">6</a></span>
+<span class="normal"><a href="#__codelineno-17-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="nx">mysqlService</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memorymysql</span><span class="p">.</span><span class="nx">NewService</span><span class="p">(</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">    </span><span class="nx">memorymysql</span><span class="p">.</span><span class="nx">WithMySQLClientDSN</span><span class="p">(</span><span class="s">"..."</span><span class="p">),</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">    </span><span class="nx">memorymysql</span><span class="p">.</span><span class="nx">WithSoftDelete</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span><span class="w"> </span><span class="c1">// 启用软删除</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="p">)</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<p><strong>行为差异</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>硬删除</th>
+<th>软删除</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>删除</td>
+<td>立即移除</td>
+<td>设置 <code>deleted_at</code> 字段</td>
+</tr>
+<tr>
+<td>查询</td>
+<td>不可见</td>
+<td>自动过滤（WHERE deleted_at IS NULL）</td>
+</tr>
+<tr>
+<td>恢复</td>
+<td>无法恢复</td>
+<td>重新 Add，或将更新轮转到相同 ID</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>节省空间</td>
+<td>占用空间</td>
+</tr>
+</tbody>
+</table>
+<p>当新记忆的规范 ID 与 tombstone 相同时，<code>AddMemory</code> 会重新激活该记录。
+<code>UpdateMemory</code> 不能以软删除记录作为 source；只有从 active source 更新后，内容和
+身份元数据轮转到软删除 target 的规范 ID 时，才会重新激活该 target。</p>
+<p><strong>迁移陷阱</strong>：</p>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-18-1">1</a></span>
+<span class="normal"><a href="#__codelineno-18-2">2</a></span>
+<span class="normal"><a href="#__codelineno-18-3">3</a></span>
+<span class="normal"><a href="#__codelineno-18-4">4</a></span>
+<span class="normal"><a href="#__codelineno-18-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="c1">// ⚠️ 从支持软删除的后端迁移到不支持的后端</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2"></a><span class="c1">// 软删除的记录会丢失！</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="c1">// 从 MySQL（软删除）迁移到 Redis（硬删除）</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="c1">// 需要手动处理软删除记录</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="_22">最佳实践</h2>
+<h3 id="_23">生产环境配置</h3>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-19-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-19-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-19-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-19-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-19-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-19-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-19-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-19-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-19-10">10</a></span>
+<span class="normal"><a href="#__codelineno-19-11">11</a></span>
+<span class="normal"><a href="#__codelineno-19-12">12</a></span>
+<span class="normal"><a href="#__codelineno-19-13">13</a></span>
+<span class="normal"><a href="#__codelineno-19-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="c1">// ✅ 推荐配置</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="nx">postgresService</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memorypostgres</span><span class="p">.</span><span class="nx">NewService</span><span class="p">(</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="w">    </span><span class="c1">// 生产环境的 POSTGRES_DSN 应使用 sslmode=verify-full。</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">    </span><span class="nx">memorypostgres</span><span class="p">.</span><span class="nx">WithPostgresClientDSN</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="s">"POSTGRES_DSN"</span><span class="p">)),</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5"></a>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">    </span><span class="c1">// 启用软删除（便于恢复）</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">    </span><span class="nx">memorypostgres</span><span class="p">.</span><span class="nx">WithSoftDelete</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8"></a>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="w">    </span><span class="c1">// 合理限制</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="w">    </span><span class="nx">memorypostgres</span><span class="p">.</span><span class="nx">WithMemoryLimit</span><span class="p">(</span><span class="mi">1000</span><span class="p">),</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="p">)</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13"></a><span class="w">    </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="_24">错误处理</h3>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-20-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-20-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-20-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-20-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-20-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-20-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-20-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-20-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-20-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-20-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="c1">// ✅ 完整错误处理</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryService</span><span class="p">.</span><span class="nx">AddMemory</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">userKey</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">,</span><span class="w"> </span><span class="nx">topics</span><span class="p">)</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Contains</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">(),</span><span class="w"> </span><span class="s">"limit exceeded"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">        </span><span class="c1">// 超限：清理旧记忆或拒绝添加</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Warnf</span><span class="p">(</span><span class="s">"Memory limit exceeded for user %s"</span><span class="p">,</span><span class="w"> </span><span class="nx">userKey</span><span class="p">.</span><span class="nx">UserID</span><span class="p">)</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">"failed to add memory: %w"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+<h3 id="_25">工具启用策略</h3>
+<div class="language-go highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-21-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-21-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-21-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-21-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-21-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-21-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-21-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-21-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-21-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-21-10">10</a></span>
+<span class="normal"><a href="#__codelineno-21-11">11</a></span>
+<span class="normal"><a href="#__codelineno-21-12">12</a></span>
+<span class="normal"><a href="#__codelineno-21-13">13</a></span>
+<span class="normal"><a href="#__codelineno-21-14">14</a></span>
+<span class="normal"><a href="#__codelineno-21-15">15</a></span>
+<span class="normal"><a href="#__codelineno-21-16">16</a></span>
+<span class="normal"><a href="#__codelineno-21-17">17</a></span>
+<span class="normal"><a href="#__codelineno-21-18">18</a></span>
+<span class="normal"><a href="#__codelineno-21-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="c1">// 场景 1：只读助手</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="nx">readOnlyService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">NewMemoryService</span><span class="p">(</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">LoadToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">SearchToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">AddToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">),</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">UpdateToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">),</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="p">)</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8"></a>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9"></a><span class="c1">// 场景 2：普通用户</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="nx">userService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">NewMemoryService</span><span class="p">(</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">DeleteToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="w">    </span><span class="c1">// clear 禁用（防止误删所有记忆）</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13"></a><span class="p">)</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14"></a>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15"></a><span class="c1">// 场景 3：管理员</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16"></a><span class="nx">adminService</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">NewMemoryService</span><span class="p">(</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">DeleteToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18"></a><span class="w">    </span><span class="nx">memoryinmemory</span><span class="p">.</span><span class="nx">WithToolEnabled</span><span class="p">(</span><span class="nx">memory</span><span class="p">.</span><span class="nx">ClearToolName</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19"></a><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+<h2 id="_26">参考链接</h2>
+<ul>
+<li><a href="https://github.com/trpc-group/trpc-agent-go/tree/main/memory">Memory 模块源码</a></li>
+<li><a href="https://github.com/trpc-group/trpc-agent-go/tree/main/examples/memory">工具驱动模式示例</a></li>
+<li><a href="https://github.com/trpc-group/trpc-agent-go/tree/main/examples/memory/auto">自动提取模式示例</a></li>
+<li><a href="https://github.com/trpc-group/trpc-agent-go/tree/main/examples/memory/mem0">mem0 示例</a></li>
+<li><a href="https://github.com/trpc-group/trpc-agent-go/tree/main/examples/memory/tencentdb">TencentDB Agent Memory 示例</a></li>
+<li><a href="https://github.com/TencentCloud/TencentDB-Agent-Memory">TencentDB Agent Memory SDK</a></li>
+<li><a href="https://github.com/trpc-group/trpc-agent-go/blob/main/docs/mkdocs/zh/ecosystem.md">生态建设文档</a></li>
+<li><a href="https://pkg.go.dev/trpc.group/trpc-go/trpc-agent-go/memory">API 文档</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="2026年8月14日 02:12:07 UTC">2026-08-14 02:12:07</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="2026年8月14日 02:12:07 UTC">2026-08-14 02:12:07</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+  
+
+
+
+  <form class="md-feedback" name="feedback" hidden>
+    <fieldset>
+      <legend class="md-feedback__title">
+        Was this page helpful?
+      </legend>
+      <div class="md-feedback__inner">
+        <div class="md-feedback__list">
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page was helpful" data-md-value="1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m7 0c0 .8-.7 1.5-1.5 1.5S14 10.3 14 9.5 14.7 8 15.5 8s1.5.7 1.5 1.5m-5 7.73c-1.75 0-3.29-.73-4.19-1.81L9.23 14c.45.72 1.52 1.23 2.77 1.23s2.32-.51 2.77-1.23l1.42 1.42c-.9 1.08-2.44 1.81-4.19 1.81"/></svg>
+            </button>
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page could be improved" data-md-value="0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10m-6.5-4c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m2 4.5c1.75 0 3.29.72 4.19 1.81l-1.42 1.42C14.32 16.5 13.25 16 12 16s-2.32.5-2.77 1.23l-1.42-1.42C8.71 14.72 10.25 14 12 14"/></svg>
+            </button>
+          
+        </div>
+        <div class="md-feedback__note">
+          
+            <div data-md-value="1" hidden>
+              
+              
+                
+              
+              
+              
+                
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+            <div data-md-value="0" hidden>
+              
+              
+                
+              
+              
+              
+                
+                
+              
+              Thanks for your feedback!<br>Please help us improve by opening an <a href="https://github.com/trpc-group/trpc-agent-go/issues/new" target="_blank" rel="noopener">issue</a>.
+            </div>
+          
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../plugin/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Plugins">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                Plugins
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="usage/" class="md-footer__link md-footer__link--next" aria-label="下一页: 使用与配置">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                使用与配置
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "navigation.footer", "navigation.tabs", "search.suggest", "search.share", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+        <script src="../../assets/javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
