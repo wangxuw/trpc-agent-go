@@ -1186,6 +1186,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#streaming-tool-call-index-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming Tool-Call Index Compatibility
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#custom-streaming-usage-aggregation" class="md-nav__link">
     <span class="md-ellipsis">
       Custom Streaming Usage Aggregation
@@ -3374,6 +3383,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge/vectorstore/chromadb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ChromaDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -4259,6 +4291,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../blog/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tRPC-Agent-Go Memory: How Agent Memory Is Formed, Retrieved, and Connected to External Platforms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../blog/summary/" class="md-nav__link">
         
   
@@ -4817,6 +4872,15 @@
   
     <nav class="md-nav" aria-label="1. Callback Functions">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#streaming-tool-call-index-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming Tool-Call Index Compatibility
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#custom-streaming-usage-aggregation" class="md-nav__link">
@@ -6627,6 +6691,33 @@ final JSON content themselves. If you already have a hand-written schema, set
 </span><span id="__span-16-37"><a id="__codelineno-16-37" name="__codelineno-16-37"></a><span class="w">    </span><span class="p">}),</span>
 </span><span id="__span-16-38"><a id="__codelineno-16-38" name="__codelineno-16-38"></a><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
+<h5 id="streaming-tool-call-index-compatibility">Streaming Tool-Call Index Compatibility</h5>
+<p>The OpenAI-compatible adapter normalizes negative <code>tool_calls[].index</code> values
+before accumulation, without upgrading the SDK. A single tool call with index
+<code>-1</code> uses zero, following the newer OpenAI Go SDK's fallback. For mixed or
+conflicting indices, the adapter assigns separate non-negative indices and
+retains provider-to-accumulator mappings for subsequent chunks. This keeps
+continuation chunks that omit IDs attached to the correct tool call, even when
+a valid index arrives after a negative one. Mappings are scoped to each choice.
+Valid indices are preserved when they do not conflict with an assigned index.
+Calls displaced by a negative-index call retain that distinction through later
+collisions, so subsequent declarations at distinct provider indices stay separate.
+A known ID can introduce an alias at a different index. If a new ID later
+declares a call at that alias, the new call takes over the alias. The original
+call keeps its assigned index and can still continue by ID.
+At an alias, a function-name delta without an ID uses the original explicit-index
+fallback. This keeps names that arrive before their IDs out of the alias owner's
+call; later IDs and argument chunks follow the new mapping. Argument-only deltas
+can still follow an alias until another call claims it.
+An omitted or null index does not establish a provider index mapping. After
+matching a known ID, the adapter attaches such a delta to the unique compatible
+call, even at a nonzero index; otherwise, it retains the zero fallback. For an
+explicit index with no provider mapping, compatible metadata or argument
+continuations can still use an already assigned non-negative index. This
+includes delayed names and IDs and function names split across chunks.
+Providers must still supply an unambiguous index or ID to distinguish
+interleaved calls; a missing ID combined with a missing or shared index does not
+contain enough information to recover the intended call among multiple candidates.</p>
 <h5 id="custom-streaming-usage-aggregation">Custom Streaming Usage Aggregation</h5>
 <p>The OpenAI-compatible adapter requests streaming usage and accumulates the
 provider's usage chunks by default. Most applications should keep this
@@ -6713,11 +6804,11 @@ totals:</p>
 </tr>
 <tr>
 <td><code>PromptTokensDetails.CacheCreationTokens</code></td>
-<td>Tokens used to create an explicit provider cache, primarily for Anthropic-style caching</td>
+<td>Tokens used to create an explicit provider cache. Populated from <code>prompt_tokens_details.cache_creation_tokens</code> when a gateway reports it</td>
 </tr>
 <tr>
 <td><code>PromptTokensDetails.CacheReadTokens</code></td>
-<td>Tokens read from an explicit provider cache, primarily for Anthropic-style caching</td>
+<td>Tokens read from an explicit provider cache. Populated from <code>prompt_tokens_details.cache_read_tokens</code> when a gateway reports it</td>
 </tr>
 <tr>
 <td><code>CompletionTokensDetails.ReasoningTokens</code></td>
@@ -6741,6 +6832,16 @@ totals:</p>
 <code>WithAccumulateChunkTokenUsage</code> belongs to the OpenAI-compatible adapter, so
 its callback only receives fields that the upstream OpenAI-compatible response
 and adapter mapping support. Other provider-specific fields remain zero.</p>
+<p>The OpenAI-compatible adapter also surfaces prompt cache counts that gateways
+report in <code>prompt_tokens_details</code>: <code>cache_read_tokens</code> maps to
+<code>PromptTokensDetails.CacheReadTokens</code>, and <code>cache_creation_tokens</code> maps to
+<code>PromptTokensDetails.CacheCreationTokens</code>. Providers that follow the OpenAI
+schema strictly leave both counts at <code>0</code>.</p>
+<p>In streaming responses both counts accumulate across chunks, matching the
+default accumulation of prompt, completion, and total tokens. When a
+<code>WithAccumulateChunkTokenUsage</code> callback is configured, its return value
+determines the final cache counts, so providers that report cumulative
+snapshots can keep the latest one.</p>
 <p><code>TimingInfo</code> contains <code>FirstTokenDuration</code> and <code>ReasoningDuration</code>. The
 framework attaches this timing metadata outside the OpenAI chunk-usage
 accumulator, so custom token accumulation normally does not need to create or
@@ -8343,15 +8444,25 @@ metrics logic.</p>
 </span><span id="__span-53-8"><a id="__codelineno-53-8" name="__codelineno-53-8"></a><span class="w">    </span><span class="nx">model</span><span class="p">.</span><span class="nx">WithApproxRunesPerToken</span><span class="p">(</span><span class="mf">1.6</span><span class="p">),</span><span class="w">  </span><span class="c1">// Recommended value for Chinese scenarios</span>
 </span><span id="__span-53-9"><a id="__codelineno-53-9" name="__codelineno-53-9"></a><span class="p">)</span>
 </span><span id="__span-53-10"><a id="__codelineno-53-10" name="__codelineno-53-10"></a>
-</span><span id="__span-53-11"><a id="__codelineno-53-11" name="__codelineno-53-11"></a><span class="c1">// 2. Set as global counter (affects all summary triggers)</span>
+</span><span id="__span-53-11"><a id="__codelineno-53-11" name="__codelineno-53-11"></a><span class="c1">// 2. Set the process default; explicit agent request counters take precedence</span>
 </span><span id="__span-53-12"><a id="__codelineno-53-12" name="__codelineno-53-12"></a><span class="nx">summary</span><span class="p">.</span><span class="nx">SetTokenCounter</span><span class="p">(</span><span class="nx">counter</span><span class="p">)</span>
 </span><span id="__span-53-13"><a id="__codelineno-53-13" name="__codelineno-53-13"></a>
 </span><span id="__span-53-14"><a id="__codelineno-53-14" name="__codelineno-53-14"></a><span class="c1">// 3. Create summarizer</span>
 </span><span id="__span-53-15"><a id="__codelineno-53-15" name="__codelineno-53-15"></a><span class="nx">summarizer</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">summary</span><span class="p">.</span><span class="nx">NewSummarizer</span><span class="p">(</span>
 </span><span id="__span-53-16"><a id="__codelineno-53-16" name="__codelineno-53-16"></a><span class="w">    </span><span class="nx">summaryModel</span><span class="p">,</span>
-</span><span id="__span-53-17"><a id="__codelineno-53-17" name="__codelineno-53-17"></a><span class="w">    </span><span class="nx">summary</span><span class="p">.</span><span class="nx">WithTokenThreshold</span><span class="p">(</span><span class="mi">4000</span><span class="p">),</span><span class="w">  </span><span class="c1">// Uses your custom counter for evaluation</span>
+</span><span id="__span-53-17"><a id="__codelineno-53-17" name="__codelineno-53-17"></a><span class="w">    </span><span class="nx">summary</span><span class="p">.</span><span class="nx">WithTokenThreshold</span><span class="p">(</span><span class="mi">4000</span><span class="p">),</span><span class="w">  </span><span class="c1">// Threshold in estimated tokens</span>
 </span><span id="__span-53-18"><a id="__codelineno-53-18" name="__codelineno-53-18"></a><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
+<p><code>summary.SetTokenCounter(...)</code> configures the process default for summary checks
+and summary-request estimates. It also supplies the default for model-visible
+request-view estimates and pre-LLM summary triggers. An agent's explicit
+<code>WithContextCompactionTokenCounter(...)</code> takes precedence for its request
+estimates, including when context compaction is disabled. The process default
+is read at evaluation time, so later updates affect existing agents;
+<code>SetTokenCounter(nil)</code> restores the built-in <code>SimpleTokenCounter</code>. Custom
+counters must support concurrent calls. Tool-result compaction and model token
+tailoring keep their independent defaults; configure those paths explicitly
+when the same estimates are needed.</p>
 <h4 id="7-token-tailoring">7. Token Tailoring</h4>
 <p>Token Tailoring is an intelligent message management technique designed to automatically trim messages when they exceed the model's context window limits, ensuring requests can be successfully sent to the LLM API. This feature is particularly useful for long conversation scenarios, allowing you to keep the message list within the model's token limits while preserving key context.</p>
 <p><strong>Automatic Mode (Recommended)</strong>:</p>
@@ -10176,7 +10287,7 @@ to preserve the default clean text-streaming behavior.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="August 17, 2026 08:27:47 UTC">2026-08-17 08:27:47</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_datetime" title="October 28, 2026 12:04:24 UTC">2026-10-28 12:04:24</span>
   </span>
 
     
