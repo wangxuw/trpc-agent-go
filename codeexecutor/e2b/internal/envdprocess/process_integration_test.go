@@ -285,9 +285,6 @@ func createIntegrationSandbox(
 	require.NotEmpty(t, domain, "create response or %s must provide the sandbox domain", integrationDomainVariable)
 
 	hostID := created.SandboxID
-	if created.Domain == "" && created.ClientID != "" {
-		hostID += "-" + created.ClientID
-	}
 	scheme := "https"
 	if parsed, parseErr := url.Parse(config.apiURL); parseErr == nil && parsed.Scheme == "http" {
 		scheme = "http"

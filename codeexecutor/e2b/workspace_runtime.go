@@ -15,7 +15,6 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -29,19 +28,23 @@ import (
 	"strings"
 	"time"
 
+	"connectrpc.com/connect"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	ci "trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/codeinterpreter"
+	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/envdfs"
+	filesystem "trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/envdfs/spec"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/envdprocess"
 	atrace "trpc.group/trpc-go/trpc-agent-go/telemetry/trace"
 )
 
 // Compile-time check that workspaceRuntime satisfies the expected interfaces.
 var (
-	_ codeexecutor.WorkspaceManager = (*workspaceRuntime)(nil)
-	_ codeexecutor.ProgramRunner    = (*workspaceRuntime)(nil)
+	_ codeexecutor.WorkspaceManager         = (*workspaceRuntime)(nil)
+	_ codeexecutor.ProgramRunner            = (*workspaceRuntime)(nil)
+	_ codeexecutor.InteractiveProgramRunner = (*workspaceRuntime)(nil)
 )
 
 const (
@@ -120,8 +123,12 @@ func (r *workspaceRuntime) CreateWorkspace(
 		wsPath = path.Join(r.cfg.runBase, fmt.Sprintf("ws_%s_%d", safe, suf))
 	}
 
-	var sb strings.Builder
-	sb.WriteString("set -e; mkdir -p ")
+	opCtx, cancel := context.WithTimeout(ctx, defaultCreateTimeout)
+	defer cancel()
+	client, err := r.filesystem(opCtx)
+	if err != nil {
+		return codeexecutor.Workspace{}, err
+	}
 	for _, d := range []string{
 		wsPath,
 		path.Join(wsPath, codeexecutor.DirSkills),
@@ -129,16 +136,24 @@ func (r *workspaceRuntime) CreateWorkspace(
 		path.Join(wsPath, codeexecutor.DirRuns),
 		path.Join(wsPath, codeexecutor.DirOut),
 	} {
-		sb.WriteString(shellQuote(d))
-		sb.WriteByte(' ')
+		if err := r.ensureDirectory(opCtx, client, d); err != nil {
+			return codeexecutor.Workspace{}, err
+		}
 	}
-	sb.WriteString("; [ -f ")
-	sb.WriteString(shellQuote(path.Join(wsPath, codeexecutor.MetaFileName)))
-	sb.WriteString(" ] || echo '{}' > ")
-	sb.WriteString(shellQuote(path.Join(wsPath, codeexecutor.MetaFileName)))
-
-	if _, _, _, err := r.runBash(ctx, sb.String(), defaultCreateTimeout); err != nil {
-		span.SetStatus(codes.Error, err.Error())
+	metadata := path.Join(wsPath, codeexecutor.MetaFileName)
+	info, err := client.Stat(opCtx, metadata)
+	switch {
+	case connect.CodeOf(err) == connect.CodeNotFound:
+		err = client.Write(opCtx, metadata, strings.NewReader("{}\n"))
+	case err != nil:
+		return codeexecutor.Workspace{}, err
+	case info.GetSymlinkTarget() != "":
+		// Preserve test -f's dereference behavior for existing metadata symlinks.
+		_, _, _, err = r.runBash(opCtx, "[ -f "+shellQuote(metadata)+" ] || echo '{}' > "+shellQuote(metadata), defaultCreateTimeout)
+	case info.Type != filesystem.FileType_FILE_TYPE_FILE:
+		err = errors.New("e2b: workspace metadata is not a regular file")
+	}
+	if err != nil {
 		return codeexecutor.Workspace{}, err
 	}
 	return codeexecutor.Workspace{ID: execID, Path: wsPath}, nil
@@ -155,16 +170,19 @@ func (r *workspaceRuntime) Cleanup(
 	if ws.Path == "" {
 		return nil
 	}
-	script := "rm -rf " + shellQuote(ws.Path)
-	_, _, _, err := r.runBash(ctx, script, defaultRmTimeout)
+	opCtx, cancel := context.WithTimeout(ctx, defaultRmTimeout)
+	defer cancel()
+	client, err := r.filesystem(opCtx)
+	if err == nil {
+		err = client.Remove(opCtx, ws.Path)
+	}
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 	}
 	return err
 }
 
-// PutFiles writes files into the sandbox workspace. Content is shipped via
-// base64 to stay binary-safe.
+// PutFiles writes files into the sandbox workspace using native binary transfer.
 func (r *workspaceRuntime) PutFiles(
 	ctx context.Context,
 	ws codeexecutor.Workspace,
@@ -601,45 +619,8 @@ func (r *workspaceRuntime) RunProgram(
 		span.End()
 	}()
 
-	timeout := spec.Timeout
-	if timeout <= 0 {
-		timeout = defaultRunTimeout
-	}
-
-	cwd := ws.Path
-	if spec.Cwd != "" {
-		cwd = path.Join(ws.Path, filepath.ToSlash(spec.Cwd))
-	}
-
-	skillsDir := path.Join(ws.Path, codeexecutor.DirSkills)
-	workDir := path.Join(ws.Path, codeexecutor.DirWork)
-	outDir := path.Join(ws.Path, codeexecutor.DirOut)
-	runDir := path.Join(
-		ws.Path, codeexecutor.DirRuns,
-		"run_"+time.Now().Format("20060102T150405.000"),
-	)
-	baseEnv := map[string]string{
-		codeexecutor.WorkspaceEnvDirKey: ws.Path,
-		codeexecutor.EnvSkillsDir:       skillsDir,
-		codeexecutor.EnvWorkDir:         workDir,
-		codeexecutor.EnvOutputDir:       outDir,
-		codeexecutor.EnvRunDir:          runDir,
-	}
-	bootstrap := programBootstrap
-	if spec.Stdin == "" {
-		// Old envd versions ignore Start.Stdin=false. Close the program input
-		// explicitly without depending on Process.CloseStdin.
-		bootstrap += " < /dev/null"
-	}
-	args := []string{"-c", bootstrap, "trpc-run", runDir, outDir, cwd, "/usr/bin/env"}
-	envArgs, err := programEnvArgs(baseEnv, spec.Env, spec.CleanEnv)
+	req, err := programRequest(ws, spec, false)
 	if err != nil {
-		return codeexecutor.RunResult{}, err
-	}
-	args = append(args, envArgs...)
-	args = append(args, spec.Cmd)
-	args = append(args, spec.Args...)
-	if err := validateProgramArgs(spec.Cmd, args); err != nil {
 		return codeexecutor.RunResult{}, err
 	}
 
@@ -650,9 +631,7 @@ func (r *workspaceRuntime) RunProgram(
 	sbx := r.ce.sbx
 	r.ce.mu.Unlock()
 	start := time.Now()
-	result, err := ci.RunProcess(ctx, sbx, envdprocess.Request{
-		Cmd: "/bin/bash", Args: args, Stdin: spec.Stdin, Timeout: timeout,
-	})
+	result, err := ci.RunProcess(ctx, sbx, req)
 	res = codeexecutor.RunResult{
 		Stdout:   result.Stdout,
 		Stderr:   result.Stderr,
@@ -668,6 +647,66 @@ func (r *workspaceRuntime) RunProgram(
 // values are positional arguments, and caller environment variables reach only
 // the final env invocation. exec preserves the managed PID for the program.
 const programBootstrap = `/bin/mkdir -p -- "$1" "$2" && cd -- "$3" && shift 3 && exec "$@"`
+
+func programRequest(
+	ws codeexecutor.Workspace,
+	spec codeexecutor.RunProgramSpec,
+	keepStdinOpen bool,
+) (envdprocess.Request, error) {
+	timeout := spec.Timeout
+	if timeout <= 0 {
+		timeout = defaultRunTimeout
+	}
+	cwd := ws.Path
+	if spec.Cwd != "" {
+		cwd = path.Join(ws.Path, filepath.ToSlash(spec.Cwd))
+	}
+	runDir := path.Join(
+		ws.Path, codeexecutor.DirRuns,
+		"run_"+time.Now().Format("20060102T150405.000"),
+	)
+	baseEnv := map[string]string{
+		codeexecutor.WorkspaceEnvDirKey: ws.Path,
+		codeexecutor.EnvSkillsDir: path.Join(
+			ws.Path, codeexecutor.DirSkills,
+		),
+		codeexecutor.EnvWorkDir: path.Join(
+			ws.Path, codeexecutor.DirWork,
+		),
+		codeexecutor.EnvOutputDir: path.Join(
+			ws.Path, codeexecutor.DirOut,
+		),
+		codeexecutor.EnvRunDir: runDir,
+	}
+	bootstrap := programBootstrap
+	if !keepStdinOpen && spec.Stdin == "" {
+		// Old envd versions ignore Start.Stdin=false. Close the program input
+		// explicitly without depending on Process.CloseStdin.
+		bootstrap += " < /dev/null"
+	}
+	args := []string{
+		"-c", bootstrap, "trpc-run", runDir, path.Join(
+			ws.Path, codeexecutor.DirOut,
+		), cwd, "/usr/bin/env",
+	}
+	envArgs, err := programEnvArgs(baseEnv, spec.Env, spec.CleanEnv)
+	if err != nil {
+		return envdprocess.Request{}, err
+	}
+	args = append(args, envArgs...)
+	args = append(args, spec.Cmd)
+	args = append(args, spec.Args...)
+	if err := validateProgramArgs(spec.Cmd, args); err != nil {
+		return envdprocess.Request{}, err
+	}
+	return envdprocess.Request{
+		Cmd:           "/bin/bash",
+		Args:          args,
+		Stdin:         spec.Stdin,
+		KeepStdinOpen: keepStdinOpen,
+		Timeout:       timeout,
+	}, nil
+}
 
 func validateProgramArgs(cmd string, args []string) error {
 	if cmd == "" {
@@ -780,31 +819,39 @@ func (r *workspaceRuntime) runBash(
 	return stdout, stderr, exit, err
 }
 
-// runBashStreaming is the low-level primitive: it invokes Sandbox.RunCode
-// with LanguageBash and collects the combined stream outputs.
+// workspaceScriptBootstrap reads exactly the framed script length before EOF.
+// This avoids exec argument-size limits and does not require CloseStdin on
+// older envd versions. The pipeline returns the script interpreter's exit code.
+const workspaceScriptBootstrap = `head -c "$1" | /bin/bash`
+
+// runBashStreaming runs filesystem scripts through native envd. Scripts are
+// carried on stdin, never in exec arguments or through Code Interpreter.
 func (r *workspaceRuntime) runBashStreaming(
 	ctx context.Context, script string, timeout time.Duration,
 ) (string, string, int, error) {
-	if r.ce == nil || r.ce.sbx == nil {
+	if r.ce == nil {
 		return "", "", 0, errors.New("e2b: sandbox not initialized")
 	}
-	var stdoutB, stderrB strings.Builder
-	opts := &ci.RunCodeOpts{
-		Language: ci.LanguageBash,
-		Timeout:  timeout,
-		OnStdout: func(m ci.OutputMessage) { stdoutB.WriteString(m.Line) },
-		OnStderr: func(m ci.OutputMessage) { stderrB.WriteString(m.Line) },
-	}
-	exec, err := r.ce.sbx.RunCode(ctx, script, opts)
+	r.ce.mu.Lock()
+	sbx := r.ce.sbx
+	r.ce.mu.Unlock()
+	result, err := ci.RunProcess(ctx, sbx, envdprocess.Request{
+		Cmd:           "/bin/bash",
+		Args:          []string{"-c", workspaceScriptBootstrap, "trpc-workspace", strconv.Itoa(len(script))},
+		Stdin:         script,
+		KeepStdinOpen: true,
+		Timeout:       timeout,
+	})
 	if err != nil {
-		return stdoutB.String(), stderrB.String(), -1, err
+		return result.Stdout, result.Stderr, result.ExitCode, err
 	}
-	if exec.Error != nil {
-		return stdoutB.String(), stderrB.String(), -1, fmt.Errorf(
-			"bash error: %s: %s", exec.Error.Name, exec.Error.Value,
-		)
+	if result.TimedOut {
+		return result.Stdout, result.Stderr, result.ExitCode, fmt.Errorf("e2b: workspace operation timed out: %w", context.DeadlineExceeded)
 	}
-	return stdoutB.String(), stderrB.String(), 0, nil
+	if result.ExitCode != 0 {
+		return result.Stdout, result.Stderr, result.ExitCode, fmt.Errorf("e2b: workspace operation exit code %d: %s", result.ExitCode, result.Stderr)
+	}
+	return result.Stdout, result.Stderr, result.ExitCode, nil
 }
 
 func tarGzFromFiles(files []codeexecutor.PutFile) ([]byte, error) {
@@ -930,93 +977,99 @@ func tarGzFromDir(root string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (r *workspaceRuntime) uploadTarGzAndExtract(
-	ctx context.Context, dest string, data []byte,
-) error {
-	b64 := base64.StdEncoding.EncodeToString(data)
-	var script strings.Builder
-	script.WriteString("set -e; mkdir -p ")
-	script.WriteString(shellQuote(dest))
-	script.WriteString("; printf %s ")
-	script.WriteString(shellQuote(b64))
-	script.WriteString(" | base64 -d | tar -xzf - -C ")
-	script.WriteString(shellQuote(dest))
-	_, _, _, err := r.runBash(
-		ctx, script.String(), defaultStageTimeout,
-	)
-	return err
-}
-
-// writeBytesToSandbox writes arbitrary bytes to dest inside the sandbox.
-func (r *workspaceRuntime) writeBytesToSandbox(
-	ctx context.Context, dest string, data []byte, mode os.FileMode,
-) error {
-	b64 := base64.StdEncoding.EncodeToString(data)
-	var script strings.Builder
-	script.WriteString("set -e; mkdir -p ")
-	script.WriteString(shellQuote(path.Dir(dest)))
-	script.WriteString("; printf %s ")
-	script.WriteString(shellQuote(b64))
-	script.WriteString(" | base64 -d > ")
-	script.WriteString(shellQuote(dest))
-	if mode != 0 {
-		script.WriteString("; chmod ")
-		script.WriteString(fmt.Sprintf("%o", mode))
-		script.WriteByte(' ')
-		script.WriteString(shellQuote(dest))
+// filesystem snapshots the same endpoint, credentials and user as RunProgram.
+func (r *workspaceRuntime) filesystem(ctx context.Context) (*envdfs.Client, error) {
+	if r.ce == nil {
+		return nil, errors.New("e2b: sandbox not initialized")
 	}
-	_, _, _, err := r.runBash(
-		ctx, script.String(), defaultStageTimeout,
-	)
+	r.ce.mu.Lock()
+	sbx := r.ce.sbx
+	r.ce.mu.Unlock()
+	return ci.NewFilesystemClient(ctx, sbx)
+}
+
+func (r *workspaceRuntime) ensureDirectory(ctx context.Context, client *envdfs.Client, name string) error {
+	err := client.MakeDir(ctx, name)
+	if connect.CodeOf(err) != connect.CodeAlreadyExists {
+		return err
+	}
+	info, err := client.Stat(ctx, name)
+	if err != nil {
+		return err
+	}
+	if info.Type == filesystem.FileType_FILE_TYPE_DIRECTORY && info.GetSymlinkTarget() == "" {
+		return nil
+	}
+	// mkdir -p accepts a symlink to a directory, but not a regular file.
+	_, _, _, err = r.runBash(ctx, "test -d "+shellQuote(name), defaultCreateTimeout)
 	return err
 }
 
-func (r *workspaceRuntime) readFile(
-	ctx context.Context, full string, limit int64,
-) ([]byte, int64, error) {
+func (r *workspaceRuntime) uploadTarGzAndExtract(ctx context.Context, dest string, data []byte) error {
+	opCtx, cancel := context.WithTimeout(ctx, defaultStageTimeout)
+	defer cancel()
+	client, err := r.filesystem(opCtx)
+	if err != nil {
+		return err
+	}
+	if err = r.ensureDirectory(opCtx, client, dest); err != nil {
+		return err
+	}
+	// Retain tar's modes and directory semantics without putting binary content
+	// in shell arguments. The temporary upload is private and always cleaned up.
+	archive := path.Join(dest, codeexecutor.MetadataTempFileName()+".tar.gz")
+	defer r.removeTemporary(ctx, archive)
+	if err = r.writeBytesToSandbox(opCtx, archive, data, 0o600); err != nil {
+		return err
+	}
+	_, _, _, err = r.runBash(opCtx, "tar -xzf "+shellQuote(archive)+" -C "+shellQuote(dest), defaultStageTimeout)
+	return err
+}
+
+func (r *workspaceRuntime) writeBytesToSandbox(ctx context.Context, dest string, data []byte, mode os.FileMode) error {
+	opCtx, cancel := context.WithTimeout(ctx, defaultStageTimeout)
+	defer cancel()
+	client, err := r.filesystem(opCtx)
+	if err != nil {
+		return err
+	}
+	if err = r.ensureDirectory(opCtx, client, path.Dir(dest)); err != nil {
+		return err
+	}
+	if mode != 0 {
+		// Create private temporary files before uploading sensitive bytes. Native
+		// HTTP /files preserves existing modes but does not expose chmod.
+		script := "umask 077; touch " + shellQuote(dest) + "; chmod " + fmt.Sprintf("%o", mode) + " " + shellQuote(dest)
+		if _, _, _, err = r.runBash(opCtx, "set -e; "+script, defaultStageTimeout); err != nil {
+			return err
+		}
+	}
+	return client.Write(opCtx, dest, bytes.NewReader(data))
+}
+
+func (r *workspaceRuntime) readFile(ctx context.Context, full string, limit int64) ([]byte, int64, error) {
 	if limit <= 0 {
 		limit = maxReadSizeBytes
 	}
-	// Echo size then base64 payload on stdout, framed so we can parse it
-	// unambiguously even when file content contains ASCII sentinels.
-	var script strings.Builder
-	script.WriteString("set -e; F=")
-	script.WriteString(shellQuote(full))
-	script.WriteString("; SZ=$(stat -c%s \"$F\" 2>/dev/null || wc -c < \"$F\"); ")
-	script.WriteString("echo __E2B_SIZE__=$SZ; ")
-	script.WriteString("echo __E2B_B64_BEGIN__; ")
-	script.WriteString(fmt.Sprintf("head -c %d \"$F\" | base64; ", limit))
-	script.WriteString("echo __E2B_B64_END__")
-	stdout, _, _, err := r.runBash(
-		ctx, script.String(), defaultCollectTimeout,
-	)
+	opCtx, cancel := context.WithTimeout(ctx, defaultCollectTimeout)
+	defer cancel()
+	client, err := r.filesystem(opCtx)
 	if err != nil {
 		return nil, 0, err
 	}
-	var size int64
-	if idx := strings.Index(stdout, "__E2B_SIZE__="); idx >= 0 {
-		rest := stdout[idx+len("__E2B_SIZE__="):]
-		if nl := strings.IndexByte(rest, '\n'); nl >= 0 {
-			rest = rest[:nl]
-		}
-		rest = strings.TrimSpace(rest)
-		if v, err := strconv.ParseInt(rest, 10, 64); err == nil {
-			size = v
-		}
+	result, err := client.Read(opCtx, full, limit)
+	return result.Content, result.Size, err
+}
+
+// removeTemporary is bounded and independent of a canceled caller. Unknown
+// mutation outcomes are not retried; this only removes the unique temp path.
+func (r *workspaceRuntime) removeTemporary(ctx context.Context, name string) {
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), defaultRmTimeout)
+	defer cancel()
+	client, err := r.filesystem(cleanupCtx)
+	if err == nil {
+		_ = client.Remove(cleanupCtx, name)
 	}
-	b64 := extractBetween(stdout, "__E2B_B64_BEGIN__",
-		"__E2B_B64_END__")
-	// Strip newlines inserted by `base64`.
-	b64 = strings.ReplaceAll(b64, "\n", "")
-	b64 = strings.ReplaceAll(b64, "\r", "")
-	data, err := base64.StdEncoding.DecodeString(b64)
-	if err != nil {
-		return nil, 0, fmt.Errorf("decode base64: %w", err)
-	}
-	if size == 0 {
-		size = int64(len(data))
-	}
-	return data, size, nil
 }
 
 // listFilesByGlob resolves the provided patterns inside the sandbox using
@@ -1177,36 +1230,15 @@ func (r *workspaceRuntime) saveWorkspaceMetadata(
 	); err != nil {
 		return err
 	}
-	var script strings.Builder
-	script.WriteString("set -e; tmp=")
-	script.WriteString(shellQuote(tmpPath))
-	script.WriteString("; dest=")
-	script.WriteString(shellQuote(destPath))
-	script.WriteString("; trap 'rm -f \"$tmp\"' EXIT; ")
-	script.WriteString("if [ -d \"$dest\" ]; then ")
-	script.WriteString("echo \"metadata path is a directory\" >&2; exit 1; ")
-	script.WriteString("fi; mv -f \"$tmp\" \"$dest\"")
-	script.WriteString("; trap - EXIT")
-	res, err := r.RunProgram(
-		ctx,
-		ws,
-		codeexecutor.RunProgramSpec{
-			Cmd:     "bash",
-			Args:    []string{"-lc", script.String()},
-			Env:     map[string]string{},
-			Cwd:     ".",
-			Timeout: defaultStageTimeout,
-		},
-	)
+	commitCtx, cancel := context.WithTimeout(ctx, defaultStageTimeout)
+	defer cancel()
+	client, err := r.filesystem(commitCtx)
 	if err != nil {
 		return err
 	}
-	if res.ExitCode != 0 {
-		return fmt.Errorf(
-			"workspace metadata commit failed: exit code %d: %s",
-			res.ExitCode,
-			strings.TrimSpace(res.Stderr),
-		)
+	// Move is a same-filesystem rename, not a copy or a move into a directory.
+	if err = client.Move(commitCtx, tmpPath, destPath); err != nil {
+		return err
 	}
 	committed = true
 	return nil
@@ -1223,18 +1255,7 @@ func (r *workspaceRuntime) cleanupMetadataTemp(
 	if tmpPath == "" {
 		return
 	}
-	cleanupCtx := context.WithoutCancel(ctx)
-	_, _ = r.RunProgram(
-		cleanupCtx,
-		codeexecutor.Workspace{Path: path.Dir(tmpPath)},
-		codeexecutor.RunProgramSpec{
-			Cmd:     "bash",
-			Args:    []string{"-lc", "rm -f " + shellQuote(tmpPath)},
-			Env:     map[string]string{},
-			Cwd:     ".",
-			Timeout: defaultStageTimeout,
-		},
-	)
+	r.removeTemporary(ctx, tmpPath)
 }
 
 // Input scheme prefixes mirrored from the container runtime.

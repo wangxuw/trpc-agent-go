@@ -62,6 +62,8 @@ type Result struct {
 	PID    uint32
 	Stdout string
 	Stderr string
+	// Output preserves stdout and stderr in process-event arrival order.
+	Output string
 	// ExitCode uses the shell convention 128 + signal for recognized Linux
 	// signal termination. Unknown terminal statuses are returned as errors.
 	ExitCode        int
@@ -255,9 +257,15 @@ func (s *processState) appendData(
 	switch output := event.Output.(type) {
 	case *process.ProcessEvent_DataEvent_Stdout:
 		s.stdout.append(output.Stdout)
+		if s.captureOutput {
+			s.output.append(output.Stdout)
+		}
 		return nil
 	case *process.ProcessEvent_DataEvent_Stderr:
 		s.stderr.append(output.Stderr)
+		if s.captureOutput {
+			s.output.append(output.Stderr)
+		}
 		return nil
 	case *process.ProcessEvent_DataEvent_Pty:
 		return errors.New("envd process: received PTY data for non-PTY process")

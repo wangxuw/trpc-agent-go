@@ -32,14 +32,41 @@ const defaultEnvdPort = 49983
 // kernel's workspace ownership. Configured Authorization or req.User overrides
 // that account. Credentialless loopback debug uses the server's default user.
 func RunProcess(ctx context.Context, s *Sandbox, req envdprocess.Request) (envdprocess.Result, error) {
-	if ctx == nil {
-		return envdprocess.Result{}, errors.New("e2b: nil context")
-	}
-	if err := ctx.Err(); err != nil {
+	client, err := processClient(ctx, s, req, false)
+	if err != nil {
 		return envdprocess.Result{}, err
 	}
+	return client.Run(ctx, req)
+}
+
+// StartProcess starts a native non-PTY process and returns after envd reports
+// its PID. The caller owns the returned process handle.
+func StartProcess(
+	ctx context.Context,
+	s *Sandbox,
+	req envdprocess.Request,
+) (*envdprocess.Process, error) {
+	client, err := processClient(ctx, s, req, true)
+	if err != nil {
+		return nil, err
+	}
+	return client.Start(ctx, req)
+}
+
+func processClient(
+	ctx context.Context,
+	s *Sandbox,
+	req envdprocess.Request,
+	captureCombinedOutput bool,
+) (*envdprocess.Client, error) {
+	if ctx == nil {
+		return nil, errors.New("e2b: nil context")
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if s == nil || s.connection == nil {
-		return envdprocess.Result{}, errors.New("e2b: sandbox not initialized")
+		return nil, errors.New("e2b: sandbox not initialized")
 	}
 	needsStdin := req.Stdin != "" && !req.KeepStdinOpen
 	s.RLock()
@@ -57,31 +84,49 @@ func RunProcess(ctx context.Context, s *Sandbox, req envdprocess.Request) (envdp
 			if ctx.Err() != nil {
 				err = ctx.Err()
 			}
-			return envdprocess.Result{}, fmt.Errorf("e2b: discover envd stdin capability: %w", err)
+			return nil, fmt.Errorf("e2b: discover envd stdin capability: %w", err)
 		}
 	}
 
-	client, err := s.newProcessClient(needsStdin)
+	client, err := s.newProcessClient(needsStdin, captureCombinedOutput)
 	if err != nil {
-		return envdprocess.Result{}, fmt.Errorf("e2b: configure process client: %w", err)
+		return nil, fmt.Errorf("e2b: configure process client: %w", err)
 	}
-	return client.Run(ctx, req)
+	return client, nil
 }
 
-func (s *Sandbox) newProcessClient(needsStdin bool) (*envdprocess.Client, error) {
-	s.RLock()
-	port, version, domain := s.envdPort, strings.TrimSpace(s.envdVersion), s.sandboxDomain
-	s.RUnlock()
+func (s *Sandbox) newProcessClient(
+	needsStdin bool,
+	captureCombinedOutput bool,
+) (*envdprocess.Client, error) {
+	baseURL, version, err := s.envdConnection()
+	if err != nil {
+		return nil, err
+	}
 	if needsStdin && version == "" {
 		return nil, errors.New("e2b: finite stdin requires a known envd version >= 0.5.2")
 	}
+	options := []envdprocess.ClientOption{
+		envdprocess.WithEnvdVersion(version),
+	}
+	if captureCombinedOutput {
+		options = append(options, envdprocess.WithCombinedOutputCapture())
+	}
+	return envdprocess.NewClient(
+		baseURL, s.connection.HTTPClient, s.envdHeaders(), options...,
+	)
+}
+
+func (s *Sandbox) envdConnection() (string, string, error) {
+	s.RLock()
+	port, version, domain := s.envdPort, strings.TrimSpace(s.envdVersion), s.sandboxDomain
+	s.RUnlock()
 	if port == 0 {
 		port = defaultEnvdPort
 	}
 	if port < 1 || port > 65535 {
-		return nil, fmt.Errorf("e2b: invalid envd port %d", port)
+		return "", "", fmt.Errorf("e2b: invalid envd port %d", port)
 	}
-	hostID := s.hostID(domain)
 	if domain == "" {
 		domain = s.connection.Domain
 	}
@@ -89,21 +134,21 @@ func (s *Sandbox) newProcessClient(needsStdin bool) (*envdprocess.Client, error)
 	if s.connection.Debug {
 		scheme = "http"
 	}
-	baseURL := fmt.Sprintf("%s://%d-%s.%s", scheme, port, hostID, domain)
+	baseURL := fmt.Sprintf("%s://%d-%s.%s", scheme, port, s.id, domain)
 	if s.connection.Debug && (domain == "localhost" || net.ParseIP(domain).IsLoopback()) {
 		baseURL = "http://" + net.JoinHostPort(domain, strconv.Itoa(port))
 	}
-	return envdprocess.NewClient(baseURL, s.connection.HTTPClient, s.processHeaders(),
-		envdprocess.WithEnvdVersion(version))
+	return baseURL, version, nil
 }
 
-func (s *Sandbox) processHeaders() http.Header {
+func (s *Sandbox) envdHeaders() http.Header {
 	headers := make(http.Header)
 	if s.connection.AccessToken != "" {
 		headers.Set("X-Access-Token", s.connection.AccessToken)
 	}
 	if s.connection.TrafficAccessToken != "" {
 		headers.Set("E2B-Traffic-Access-Token", s.connection.TrafficAccessToken)
+		headers.Set("Cube-Traffic-Access-Token", s.connection.TrafficAccessToken)
 	}
 	for key, value := range s.connection.Headers {
 		// Connect owns framing and deadline headers, not the management API.
@@ -113,10 +158,8 @@ func (s *Sandbox) processHeaders() http.Header {
 		}
 		headers.Set(key, value)
 	}
-	// Workspace files are still created by Code Interpreter, whose standard
-	// kernel runs as root. Preserve that execution identity across the native
-	// migration, including existing workspaces and 0600 staged files. Custom
-	// templates can explicitly select their kernel account through Headers.
+	// Preserve the historical root workspace owner for both native files and
+	// processes, including existing private files. Headers can select another user.
 	// Debug HTTP must remain credentialless; its server selects the account.
 	if headers.Get("Authorization") == "" && !s.connection.Debug {
 		headers.Set("Authorization", "Basic cm9vdDo=") // root:

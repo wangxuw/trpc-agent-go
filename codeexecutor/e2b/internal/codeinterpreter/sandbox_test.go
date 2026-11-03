@@ -156,8 +156,8 @@ func TestSandbox_GetHost(t *testing.T) {
 		clientID:   "xyz",
 		connection: &ConnectionConfig{Domain: "e2b.app"},
 	}
-	if got := sbx2.GetHost(3000); got != "3000-abc-xyz.e2b.app" {
-		t.Errorf("host (legacy fallback): %q", got)
+	if got := sbx2.GetHost(3000); got != "3000-abc.e2b.app" {
+		t.Errorf("host (configured domain fallback): %q", got)
 	}
 
 	sbx2.clientID = ""
@@ -181,13 +181,13 @@ func TestSandbox_JupyterURL(t *testing.T) {
 		t.Errorf("debug jupyter url: %q", got)
 	}
 
-	sbxLegacy := &Sandbox{
+	sbxFallback := &Sandbox{
 		id:         "sid",
 		clientID:   "cid",
 		connection: &ConnectionConfig{Domain: "e2b.app"},
 	}
-	if got := sbxLegacy.jupyterURL(); got != "https://49999-sid-cid.e2b.app" {
-		t.Errorf("legacy jupyter url: %q", got)
+	if got := sbxFallback.jupyterURL(); got != "https://49999-sid.e2b.app" {
+		t.Errorf("configured domain jupyter url: %q", got)
 	}
 }
 
@@ -208,6 +208,22 @@ func TestSandbox_AddAuthHeaders(t *testing.T) {
 	}
 	if h.Get("E2B-Traffic-Access-Token") != "traf" {
 		t.Errorf("traffic token: %q", h.Get("E2B-Traffic-Access-Token"))
+	}
+}
+
+func TestSandbox_TrafficTokenAlias(t *testing.T) {
+	for _, token := range []string{"", "test-traffic-token"} {
+		sbx := &Sandbox{connection: &ConnectionConfig{TrafficAccessToken: token}}
+		h := http.Header{}
+		sbx.addAuthHeaders(h)
+		for _, name := range []string{"E2B-Traffic-Access-Token", "Cube-Traffic-Access-Token"} {
+			if h.Get(name) != token {
+				t.Errorf("unexpected token presence/value for %s", name)
+			}
+			if token == "" && len(h.Values(name)) != 0 {
+				t.Errorf("empty token must not produce header %s", name)
+			}
+		}
 	}
 }
 
@@ -548,8 +564,13 @@ func TestDefaultHTTPClient_NoEnv(t *testing.T) {
 	if c.HTTPClient == nil {
 		t.Fatal("HTTPClient should be non-nil after init")
 	}
-	if c.HTTPClient.Transport != nil {
-		t.Errorf("expected default client without custom transport, got %T", c.HTTPClient.Transport)
+	wrapped, ok := c.HTTPClient.Transport.(*diagnosticTransport)
+	if !ok {
+		t.Fatalf("expected diagnostic transport, got %T", c.HTTPClient.Transport)
+	}
+	tr, ok := wrapped.base.(*http.Transport)
+	if !ok || tr.Proxy == nil {
+		t.Fatal("expected default transport proxy policy to be retained")
 	}
 }
 
@@ -569,7 +590,11 @@ func TestDefaultHTTPClient_SSLCertFile(t *testing.T) {
 	if c.HTTPClient == nil || c.HTTPClient.Transport == nil {
 		t.Fatal("expected HTTPClient with custom Transport when SSL_CERT_FILE is set")
 	}
-	tr, ok := c.HTTPClient.Transport.(*http.Transport)
+	wrapped, ok := c.HTTPClient.Transport.(*diagnosticTransport)
+	if !ok {
+		t.Fatalf("expected diagnostic transport, got %T", c.HTTPClient.Transport)
+	}
+	tr, ok := wrapped.base.(*http.Transport)
 	if !ok {
 		t.Fatalf("expected *http.Transport, got %T", c.HTTPClient.Transport)
 	}

@@ -131,8 +131,21 @@ Typical recommendations:
 `e2b.CodeExecutor.RunProgram` and `Engine().Runner().RunProgram` use native
 envd Process RPCs. They do not require the Code Interpreter `/execute`
 endpoint. `ExecuteCode`, including explicitly submitted Bash code blocks,
-continues to use Code Interpreter kernels. Workspace filesystem operations
-still use `/execute`; this migration covers program execution only.
+continues to use Code Interpreter kernels. Workspace initialization, staging,
+collection, metadata commits, cleanup and `ExecuteInline` use native envd
+(default port 49983), without `/execute` or port 49999. Binary transfers use
+HTTP `/files`; directory, stat, rename and remove use Filesystem RPCs. Mode
+changes, tar extraction, copies and glob resolution use Process RPCs with the
+same endpoint, credentials and user. Templates must provide Bash, head, tar,
+and the shell utilities used by staging and collection.
+
+File reads retain collection limits and total size reporting. Metadata commits
+use a private 0600 temporary file and same-filesystem rename; failed writes or
+commits trigger bounded best-effort cleanup. Unsupported native endpoints
+return errors without retrying mutations or falling back to Code Interpreter.
+Filesystem requests use `WithRequestTimeout` unless the supplied HTTP client
+sets its own timeout. Workspace filesystem scripts use length-framed stdin,
+so they do not require the finite-stdin CloseStdin capability described below.
 
 - A non-positive `RunProgramSpec.Timeout` uses 30 seconds. The timeout covers
   directory preparation and the command. `WithExecutionTimeout` applies to
@@ -153,6 +166,31 @@ still use `/execute`; this migration covers program execution only.
   from sandbox info. Unknown or unsupported stdin capability fails before the
   command starts. Empty stdin reaches EOF even on older envd versions.
   There is no fallback to `/execute`.
+
+The E2B workspace runner also implements `InteractiveProgramRunner` for
+non-PTY programs, with incremental output, stdin and termination control.
+TTY requests return an unsupported error before starting a process. Callers
+own the returned session and must close it; closing disconnects observation,
+while `Kill` requests SIGTERM followed by SIGKILL after the grace period.
+
+When a traffic token is available, data-plane requests send it in both
+`E2B-Traffic-Access-Token` and its CubeSandbox alias
+`Cube-Traffic-Access-Token`. No token header is added when the token is absent.
+
+The default E2B HTTP client emits debug diagnostics for request host/path,
+proxy selection, response status and credential presence (booleans only).
+It does not log header values, URL queries, proxy credentials or response bodies.
+For HTTP 403, it also reports fixed allowlisted error classifications and body
+completion/truncation flags. It observes at most 8 KiB as the caller reads,
+without logging the raw body or arbitrary error fields. Unknown values are
+reported as `unknown`. Caller-provided HTTP clients are left unchanged.
+
+Data-plane hostnames use `<port>-<sandboxID>.<domain>`. The domain returned by
+the API takes precedence over the configured domain; if absent, the configured
+domain is used without appending `clientID` to the sandbox ID. This corrects the
+previous fallback format `<port>-<sandboxID>-<clientID>.<domain>` and applies to
+both Code Interpreter and native envd requests. Custom gateways relying on the
+previous format must accept the E2B SDK hostname format.
 
 The native route reuses the sandbox domain, data-plane tokens and configured
 HTTP client for both new and connected sandboxes. It preserves an explicitly

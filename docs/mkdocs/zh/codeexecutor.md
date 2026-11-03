@@ -129,7 +129,17 @@ agent := llmagent.New(
 `e2b.CodeExecutor.RunProgram` 和 `Engine().Runner().RunProgram` 使用原生
 envd Process RPC，不再依赖 Code Interpreter `/execute`。`ExecuteCode`
 （包括显式提交的 Bash 代码块）继续使用 Code Interpreter kernel。
-Workspace 文件系统操作仍使用 `/execute`，本次迁移仅覆盖程序执行。
+工作区初始化、文件暂存、收集、元数据提交、清理以及 `ExecuteInline` 均使用
+原生 envd（默认 49983），不再依赖 `/execute` 或 49999。二进制传输使用
+HTTP `/files`；目录、stat、重命名和删除使用 Filesystem RPC。权限修改、tar
+解包、复制和 glob 使用 Process RPC，复用相同的域名、凭据和用户。模板需提供
+Bash、head、tar 及暂存和收集所需的 shell 工具。
+
+文件读取保留收集上限及完整大小；元数据通过 0600 临时文件和同文件系统 rename
+提交，写入或提交失败会执行有界的尽力清理。原生端点不支持时直接报错，不重试
+修改操作，也不回退到 Code Interpreter。文件请求使用 `WithRequestTimeout`，
+显式 HTTP client timeout 优先。文件操作脚本使用带长度的 stdin，不需要下面
+所述的有限 stdin CloseStdin 能力。
 
 - `RunProgramSpec.Timeout` 非正时默认 **30 秒**，覆盖目录准备和命令执行。
   `WithExecutionTimeout` 作用于代码单元，不控制 workspace 程序。
@@ -144,6 +154,25 @@ Workspace 文件系统操作仍使用 `/execute`，本次迁移仅覆盖程序�
 - 非空 `Stdin` 需要 **envd 0.5.2 或更新版本**才能发送 EOF。版本来自新建或连接
   sandbox 的元数据；缺失时通过 sandbox info 刷新。版本未知或不支持时，在启动
   命令前明确报错。空 stdin 在旧版 envd 上也会收到 EOF，不回退 `/execute`。
+
+E2B workspace runner 还为非 PTY 程序实现 `InteractiveProgramRunner`，支持
+增量输出、stdin 和终止控制；TTY 请求会在启动进程前明确报错。调用方负责
+关闭返回的 session；Close 断开观察，Kill 先发送 SIGTERM，宽限期后发送 SIGKILL。
+
+有流量 token 时，数据面请求同时发送 `E2B-Traffic-Access-Token`
+及其 CubeSandbox 别名 `Cube-Traffic-Access-Token`，两者值相同。
+没有 token 时不添加这两个 header。
+
+默认 E2B HTTP client 的 debug 日志记录请求 host/path、代理选择、响应状态
+及凭据是否存在（仅布尔值），不记录 header 值、URL 查询参数、代理凭据或响应体。
+调用方提供的 HTTP client 保持不变。
+HTTP 403 另记录固定白名单错误分类及响应读取完成/截断标志；仅随调用方读取
+观察最多 8 KiB，不输出原始响应或任意错误字段，未知值统一显示 `unknown`。
+
+数据面主机名使用 `<port>-<sandboxID>.<domain>`。优先使用 API 返回的 domain；
+缺省时回退到配置的 domain，不向 sandbox ID 追加 `clientID`。此行为修正了此前
+`<port>-<sandboxID>-<clientID>.<domain>` 的回退格式，同时适用于 Code Interpreter
+和原生 envd 请求。依赖旧格式的自定义网关需要支持 E2B SDK 的主机名格式。
 
 原生路径复用新建或连接 sandbox 得到的 domain、数据面 token 和配置的 HTTP
 client，并保留显式设置的 `http.Client.Timeout`；该值不应短于需要运行的长命令。

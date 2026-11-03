@@ -46,6 +46,7 @@ func TestWorkspaceProcessIdentity(t *testing.T) {
 			defer srv.close()
 			base, err := filepath.EvalSymlinks(t.TempDir())
 			require.NoError(t, err)
+			srv.fs.localRoot = base
 			opts := []Option{WithSandboxRunBase(base)}
 			if kernelUser == "custom" {
 				opts = append(opts, WithHeaders(map[string]string{
@@ -110,8 +111,8 @@ func checkWorkspaceProcessFiles(t *testing.T, ctx context.Context, c *CodeExecut
 	})
 	require.NoError(t, err)
 	require.Zero(t, result.ExitCode, result.Stderr)
-	// This copies a private file through the kernel, then commits metadata
-	// through RunProgram. Repeated calls also update existing metadata.
+	// This copies a private file through envd Process, then commits metadata
+	// through native Filesystem.Move. Repeated calls update existing metadata.
 	require.NoError(t, c.StageInputs(ctx, ws, []codeexecutor.InputSpec{{
 		From: "workspace://work/private.txt", To: "work/staged.txt",
 	}}))

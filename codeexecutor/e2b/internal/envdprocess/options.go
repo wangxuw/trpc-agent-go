@@ -21,6 +21,7 @@ type clientOptions struct {
 	supportsCloseStdin bool
 	stdoutCaptureLimit int
 	stderrCaptureLimit int
+	captureCombined    bool
 }
 
 // ClientOption configures process behavior shared by Start, Connect, and Run.
@@ -53,6 +54,16 @@ func WithStdoutCaptureLimit(limit int) ClientOption {
 func WithStderrCaptureLimit(limit int) ClientOption {
 	return func(options *clientOptions) {
 		options.stderrCaptureLimit = limit
+	}
+}
+
+// WithCombinedOutputCapture retains stdout and stderr in event arrival order
+// for incremental Process snapshots. It is disabled by default so Run callers
+// that configure per-stream capture limits do not retain a second unlimited
+// copy of process output.
+func WithCombinedOutputCapture() ClientOption {
+	return func(options *clientOptions) {
+		options.captureCombined = true
 	}
 }
 

@@ -36,6 +36,14 @@ func TestStartReturnsControllableProcess(t *testing.T) {
 		if err := stream.Send(startEvent(201)); err != nil {
 			return err
 		}
+		for _, event := range []*processrpc.ProcessEvent{
+			stdoutEvent([]byte("out")),
+			stderrEvent([]byte("err")),
+		} {
+			if err := stream.Send(&processrpc.StartResponse{Event: event}); err != nil {
+				return err
+			}
+		}
 		<-killed
 		return stream.Send(&processrpc.StartResponse{Event: signalEndEvent("signal: killed")})
 	}
@@ -63,13 +71,19 @@ func TestStartReturnsControllableProcess(t *testing.T) {
 		return connect.NewResponse(&processrpc.SendSignalResponse{}), nil
 	}
 
-	client := newTestClient(t, handler, nil)
+	client := newTestClient(t, handler, nil, WithCombinedOutputCapture())
 	proc, err := client.Start(context.Background(), Request{
 		Cmd:           "cat",
 		KeepStdinOpen: true,
 	}, WithTag("handle-process"))
 	require.NoError(t, err)
 	assert.Equal(t, uint32(201), proc.PID())
+	require.Eventually(t, func() bool {
+		result, finished, snapshotErr := proc.Snapshot()
+		return snapshotErr == nil && !finished &&
+			result.Stdout == "out" && result.Stderr == "err" &&
+			result.Output == "outerr"
+	}, time.Second, 10*time.Millisecond)
 
 	require.NoError(t, proc.SendInput(context.Background(), []byte("hello")))
 	require.NoError(t, proc.CloseStdin(context.Background()))

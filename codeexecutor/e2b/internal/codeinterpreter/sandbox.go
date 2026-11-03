@@ -15,6 +15,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"trpc.group/trpc-go/trpc-agent-go/log"
 )
 
 // SandboxOpts are options for creating or connecting to a Sandbox.
@@ -101,21 +103,15 @@ func (s *Sandbox) cachedSandboxDomain() string {
 	return s.sandboxDomain
 }
 
-func (s *Sandbox) hostID(sandboxDomain string) string {
-	if sandboxDomain == "" && s.clientID != "" {
-		return s.id + "-" + s.clientID
-	}
-	return s.id
-}
-
 // getHost returns the public host for a port exposed by the sandbox.
+// E2B routes by sandbox ID; clientID is metadata, not a hostname suffix.
 func (s *Sandbox) getHost(port int) string {
 	sandboxDomain := s.cachedSandboxDomain()
 	domain := sandboxDomain
 	if domain == "" {
 		domain = s.connection.Domain
 	}
-	return fmt.Sprintf("%d-%s.%s", port, s.hostID(sandboxDomain), domain)
+	return fmt.Sprintf("%d-%s.%s", port, s.id, domain)
 }
 
 // jupyterURL returns the URL to the internal Jupyter/Code-Interpreter server.
@@ -183,6 +179,8 @@ func Create(ctx context.Context, opts *SandboxOpts) (*Sandbox, error) {
 		return nil, err
 	}
 
+	log.Debugf("e2b create metadata: sandbox_id=%q response_domain=%q configured_domain=%q envd_token_returned=%t traffic_token_returned=%t", out.SandboxID, out.Domain, cfg.Domain, out.EnvdAccessToken != "", out.TrafficAccessToken != "")
+
 	if out.EnvdAccessToken != "" && cfg.AccessToken == "" {
 		cfg.AccessToken = out.EnvdAccessToken
 	}
@@ -237,6 +235,8 @@ func Connect(ctx context.Context, sandboxID string, opts *SandboxOpts) (*Sandbox
 	if err := cfg.do(ctx, "POST", "/sandboxes/"+sandboxID+"/connect", body, &info); err != nil {
 		return nil, err
 	}
+
+	log.Debugf("e2b connect metadata: sandbox_id=%q response_domain=%q configured_domain=%q envd_token_returned=%t traffic_token_returned=%t", info.SandboxID, info.Domain, cfg.Domain, info.EnvdAccessToken != "", info.TrafficAccessToken != "")
 
 	if info.EnvdAccessToken != "" && cfg.AccessToken == "" {
 		cfg.AccessToken = info.EnvdAccessToken
@@ -350,5 +350,6 @@ func (s *Sandbox) addAuthHeaders(h http.Header) {
 	}
 	if s.connection.TrafficAccessToken != "" {
 		h.Set("E2B-Traffic-Access-Token", s.connection.TrafficAccessToken)
+		h.Set("Cube-Traffic-Access-Token", s.connection.TrafficAccessToken)
 	}
 }

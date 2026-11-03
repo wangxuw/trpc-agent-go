@@ -105,6 +105,7 @@ func TestRunMapsRequestInputAndEvents(t *testing.T) {
 	assert.Equal(t, uint32(42), result.PID)
 	assert.Equal(t, "before\n__E2B_STDOUT_END__\nafter\n", result.Stdout)
 	assert.Equal(t, "warning\n", result.Stderr)
+	assert.Empty(t, result.Output)
 	assert.Equal(t, 7, result.ExitCode)
 	assert.False(t, result.TimedOut)
 	assert.False(t, result.StdoutTruncated)

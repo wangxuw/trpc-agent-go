@@ -87,7 +87,9 @@ func TestRunProcessSandboxConnection(t *testing.T) {
 		for _, tc := range []struct {
 			name, version, refreshedVersion, stdin, authorization, wantAuthorization, wantError string
 			port, refreshedPort                                                                 int
+			omitDomain                                                                          bool
 		}{
+			{name: "missing domain", omitDomain: true, version: "0.5.2", wantAuthorization: "Basic cm9vdDo="},
 			{name: "modern", version: "0.5.2", stdin: "data", port: 49984, wantAuthorization: "Basic cm9vdDo="},
 			{name: "legacy", version: "0.2.10", wantAuthorization: "Basic cm9vdDo="},
 			{name: "custom legacy user", version: "0.2.10", authorization: "Basic dXNlcjo=", wantAuthorization: "Basic dXNlcjo="},
@@ -102,6 +104,10 @@ func TestRunProcessSandboxConnection(t *testing.T) {
 			t.Run(fmt.Sprintf("connect=%t/%s", connectExisting, tc.name), func(t *testing.T) {
 				t.Setenv("E2B_DEBUG", "false")
 				t.Setenv("E2B_ACCESS_TOKEN", "")
+				responseDomain, wantDomain := "actual.test", "actual.test"
+				if tc.omitDomain {
+					responseDomain, wantDomain = "", "configured.test"
+				}
 				h := &sandboxProcessHandler{stdin: make(chan struct{})}
 				_, rpc := processconnect.NewProcessHandler(h)
 				var metadataReads atomic.Int32
@@ -114,9 +120,10 @@ func TestRunProcessSandboxConnection(t *testing.T) {
 						if port == 0 {
 							port = 49983
 						}
-						assert.Equal(t, fmt.Sprintf("%d-sandbox.actual.test", port), r.Host)
+						assert.Equal(t, fmt.Sprintf("%d-sandbox.%s", port, wantDomain), r.Host)
 						assert.Equal(t, "envd-token", r.Header.Get("X-Access-Token"))
 						assert.Equal(t, "traffic-token", r.Header.Get("E2B-Traffic-Access-Token"))
+						assert.Equal(t, "traffic-token", r.Header.Get("Cube-Traffic-Access-Token"))
 						assert.Equal(t, "custom", r.Header.Get("X-Custom"))
 						assert.Empty(t, r.Header.Get("X-API-Key"))
 						if strings.HasSuffix(r.URL.Path, "/Start") {
@@ -135,7 +142,7 @@ func TestRunProcessSandboxConnection(t *testing.T) {
 						port = tc.refreshedPort
 					}
 					w.Header().Set("Content-Type", "application/json")
-					_, _ = fmt.Fprintf(w, `{"sandboxID":"sandbox","clientID":"worker","domain":"actual.test","envdVersion":%q,"envdPort":%d,"envdAccessToken":"envd-token","trafficAccessToken":"traffic-token"}`, version, port)
+					_, _ = fmt.Fprintf(w, `{"sandboxID":"sandbox","clientID":"worker","domain":%q,"envdVersion":%q,"envdPort":%d,"envdAccessToken":"envd-token","trafficAccessToken":"traffic-token"}`, responseDomain, version, port)
 				}))
 				defer server.Close()
 				target, err := url.Parse(server.URL)

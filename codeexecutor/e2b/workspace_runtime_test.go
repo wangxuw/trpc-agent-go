@@ -13,6 +13,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -23,11 +24,14 @@ import (
 	"testing"
 	"time"
 
+	"connectrpc.com/connect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor"
 	ci "trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/codeinterpreter"
+	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/envdfs/spec/filesystemconnect"
+	process "trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/envdprocess/spec"
 	"trpc.group/trpc-go/trpc-agent-go/codeexecutor/e2b/internal/envdprocess/spec/processconnect"
 )
 
@@ -40,20 +44,35 @@ type mockE2BServer struct {
 	server  *httptest.Server
 	respond executeResponder
 
-	mu          sync.Mutex
-	createCalls int
-	execCalls   int
-	killCalls   int
-	lastCode    string
-	process     *workspaceProcessHandler
-	rpc         http.Handler
+	mu               sync.Mutex
+	createCalls      int
+	execCalls        int
+	interpreterCalls int
+	killCalls        int
+	lastCode         string
+	process          *workspaceProcessHandler
+	rpc              http.Handler
+	fs               *workspaceFilesystemHandler
+	fsRPC            http.Handler
 }
 
 func newMockE2BServer(t *testing.T, respond executeResponder) *mockE2BServer {
 	t.Helper()
 	m := &mockE2BServer{t: t, respond: respond}
 	m.process = &workspaceProcessHandler{inputs: make(map[uint32]*workspaceProcessInput)}
+	m.process.script = func(_ context.Context, _ *connect.Request[process.StartRequest], code string) (string, string, int32, error) {
+		m.mu.Lock()
+		m.execCalls++
+		m.lastCode = code
+		m.mu.Unlock()
+		if m.respond == nil {
+			return "", "", 0, nil
+		}
+		return scriptFixtureResult(m.respond(code))
+	}
 	_, m.rpc = processconnect.NewProcessHandler(m.process)
+	m.fs = &workspaceFilesystemHandler{root: t.TempDir()}
+	_, m.fsRPC = filesystemconnect.NewFilesystemHandler(m.fs)
 	m.server = httptest.NewServer(http.HandlerFunc(m.handle))
 	return m
 }
@@ -64,11 +83,26 @@ func (m *mockE2BServer) client() *http.Client {
 	u, err := url.Parse(m.server.URL)
 	require.NoError(m.t, err)
 	return &http.Client{
-		Transport: &redirectTransport{host: u.Host, scheme: u.Scheme},
+		Transport: &redirectTransport{host: u.Host, scheme: u.Scheme, checkHost: func(req *http.Request) {
+			switch {
+			case req.URL.Path == "/execute":
+				assert.Equal(m.t, "49999-sbx-mock.e2b.test", req.URL.Host)
+			case strings.HasPrefix(req.URL.Path, "/process.Process/"), strings.HasPrefix(req.URL.Path, "/filesystem.Filesystem/"), req.URL.Path == "/files":
+				assert.Equal(m.t, "49983-sbx-mock.e2b.test", req.URL.Host)
+			}
+		}},
 	}
 }
 
 func (m *mockE2BServer) handle(w http.ResponseWriter, r *http.Request) {
+	if strings.HasPrefix(r.URL.Path, "/filesystem.Filesystem/") {
+		m.fsRPC.ServeHTTP(w, r)
+		return
+	}
+	if r.URL.Path == "/files" {
+		m.fs.serveFiles(w, r)
+		return
+	}
 	if strings.HasPrefix(r.URL.Path, "/process.Process/") {
 		m.rpc.ServeHTTP(w, r)
 		return
@@ -100,6 +134,7 @@ func (m *mockE2BServer) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	case r.URL.Path == "/execute":
 		m.mu.Lock()
+		m.interpreterCalls++
 		m.execCalls++
 		m.mu.Unlock()
 		// Extract `code` from body.
@@ -121,11 +156,15 @@ func (m *mockE2BServer) handle(w http.ResponseWriter, r *http.Request) {
 }
 
 type redirectTransport struct {
-	host   string
-	scheme string
+	checkHost func(*http.Request)
+	host      string
+	scheme    string
 }
 
 func (t *redirectTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if t.checkHost != nil {
+		t.checkHost(req)
+	}
 	req = req.Clone(req.Context())
 	req.URL.Scheme = t.scheme
 	req.URL.Host = t.host
@@ -424,15 +463,12 @@ func TestCollect_ReadsFiles(t *testing.T) {
 				"__E2B_BASE__=/tmp/ws\n" +
 					"/tmp/ws/out/a.txt\n/tmp/ws/out/b.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=5",
-			"__E2B_B64_BEGIN__",
-			"aGVsbG8=", // "hello"
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/tmp/ws/out/a.txt", []byte("hello"))
+	srv.fs.put(t, "/tmp/ws/out/b.txt", []byte("hello"))
+
 	c := newMockedExecutor(t, srv)
 
 	files, err := c.Collect(context.Background(),
@@ -465,15 +501,11 @@ func TestCollect_FiltersPathsOutsideWorkspace(t *testing.T) {
 					"/tmp/wsmalicious/x.txt\n" +
 					"/tmp/ws/../escaped.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=4",
-			"__E2B_B64_BEGIN__",
-			"c2FmZQ==", // "safe"
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/tmp/ws/out/safe.txt", []byte("safe"))
+
 	c := newMockedExecutor(t, srv)
 
 	files, err := c.Collect(context.Background(),
@@ -496,15 +528,11 @@ func TestCollectOutputs_FiltersPathsOutsideWorkspace(t *testing.T) {
 					"/tmp/ws/" + tmpName + "\n" +
 					"/tmp/ws/out/ok.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=2",
-			"__E2B_B64_BEGIN__",
-			"b2s=", // "ok"
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/tmp/ws/out/ok.txt", []byte("ok"))
+
 	c := newMockedExecutor(t, srv)
 
 	mf, err := c.CollectOutputs(context.Background(),
@@ -524,15 +552,11 @@ func TestCollect_UsesResolvedBaseWhenWsPathIsSymlink(t *testing.T) {
 				"__E2B_BASE__=/var/real/ws\n" +
 					"/var/real/ws/out/a.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=1",
-			"__E2B_B64_BEGIN__",
-			"YQ==", // "a"
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/var/real/ws/out/a.txt", []byte("a"))
+
 	c := newMockedExecutor(t, srv)
 
 	files, err := c.Collect(context.Background(),
@@ -572,15 +596,11 @@ func TestCollectOutputs_InlinePersistsBytes(t *testing.T) {
 			return ndjsonLines(stdoutMsg(
 				"__E2B_BASE__=/tmp/ws\n/tmp/ws/out/f.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=2",
-			"__E2B_B64_BEGIN__",
-			"aGk=", // "hi"
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/tmp/ws/out/f.txt", []byte("hi"))
+
 	c := newMockedExecutor(t, srv)
 
 	mf, err := c.CollectOutputs(context.Background(),
@@ -633,8 +653,9 @@ func TestExecuteInline_Python(t *testing.T) {
 		[]codeexecutor.CodeBlock{{Language: "python", Code: "print('x')"}}, 2*time.Second)
 	require.NoError(t, err)
 	assert.Equal(t, "inline-ok\n", res.Stdout)
-	require.Len(t, srv.process.requests, 1)
-	assert.Contains(t, srv.process.requests[0].Process.Args, "python3")
+	require.NotEmpty(t, srv.process.requests)
+	assert.Contains(t, srv.process.requests[len(srv.process.requests)-1].Process.Args, "python3")
+	assert.Zero(t, srv.interpreterCalls)
 }
 
 func TestExecuteInline_UnsupportedBlockLang(t *testing.T) {
@@ -755,42 +776,30 @@ func TestPinnedArtifactVersion(t *testing.T) {
 	assert.Nil(t, pinnedArtifactVersion(md2, "name", "t"))
 }
 
-func TestSaveWorkspaceMetadata_ReturnsCommitExitError(t *testing.T) {
-	srv := newMockE2BServer(t, func(string) string { return "" })
+func TestSaveWorkspaceMetadata_ReturnsCommitError(t *testing.T) {
+	srv := newMockE2BServer(t, nil)
 	defer srv.close()
-	srv.process.exitCode = 1
-	srv.process.stderr = "mv failed\n"
+	srv.fs.moveErr = errors.New("commit failed")
+	srv.fs.put(t, "/workspace/metadata.json", []byte("old"))
 	c := newMockedExecutor(t, srv)
-	err := c.ensureRuntime().saveWorkspaceMetadata(context.Background(),
-		codeexecutor.Workspace{ID: "w", Path: "/workspace"}, codeexecutor.WorkspaceMetadata{})
-	require.ErrorContains(t, err, "exit code 1")
-	require.Len(t, srv.process.requests, 2)
-	assert.Contains(t, strings.Join(srv.process.requests[0].Process.Args, " "), "metadata path is a directory")
-	assert.Contains(t, strings.Join(srv.process.requests[1].Process.Args, " "), "rm -f")
+	err := c.ensureRuntime().saveWorkspaceMetadata(context.Background(), codeexecutor.Workspace{Path: "/workspace"}, codeexecutor.WorkspaceMetadata{})
+	require.ErrorContains(t, err, "commit failed")
+	data, err := os.ReadFile(srv.fs.resolve("/workspace/metadata.json"))
+	require.NoError(t, err)
+	assert.Equal(t, "old", string(data))
+	entries, err := os.ReadDir(srv.fs.resolve("/workspace"))
+	require.NoError(t, err)
+	require.Len(t, entries, 1)
+	assert.Zero(t, srv.interpreterCalls)
 }
-
 func TestSaveWorkspaceMetadata_ReturnsWriteError(t *testing.T) {
-	srv := newMockE2BServer(t, func(code string) string {
-		if strings.Contains(code, "base64 -d >") {
-			return ndjsonLines(errorMsg(
-				"RuntimeError",
-				"write failed",
-				"",
-			))
-		}
-		return ndjsonLines(stdoutMsg(""))
-	})
+	srv := newMockE2BServer(t, nil)
 	defer srv.close()
+	srv.fs.writeErr = errors.New("write failed")
 	c := newMockedExecutor(t, srv)
-
-	err := c.ensureRuntime().saveWorkspaceMetadata(
-		context.Background(),
-		codeexecutor.Workspace{ID: "w", Path: "/workspace"},
-		codeexecutor.WorkspaceMetadata{},
-	)
-
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "write failed")
+	err := c.ensureRuntime().saveWorkspaceMetadata(context.Background(), codeexecutor.Workspace{Path: "/workspace"}, codeexecutor.WorkspaceMetadata{})
+	require.ErrorContains(t, err, "write failed")
+	assert.Zero(t, srv.interpreterCalls)
 }
 
 func TestCleanupMetadataTempEmptyPath(t *testing.T) {
@@ -862,22 +871,8 @@ func TestStageInputs_HostScheme(t *testing.T) {
 }
 
 func TestLoadWorkspaceMetadata_ParsesJSON(t *testing.T) {
-	calls := 0
-	srv := newMockE2BServer(t, func(code string) string {
-		calls++
-		if strings.Contains(code, "metadata.json") {
-			// readFile for metadata.json
-			body := strings.Join([]string{
-				"__E2B_SIZE__=50",
-				"__E2B_B64_BEGIN__",
-				base64.StdEncoding.EncodeToString([]byte(
-					`{"version":2,"skills":{"sk1":{"name":"sk1"}}}`)),
-				"__E2B_B64_END__",
-			}, "\n") + "\n"
-			return ndjsonLines(stdoutMsg(body))
-		}
-		return ""
-	})
+	srv := newMockE2BServer(t, nil)
+	srv.fs.put(t, "/tmp/ws/metadata.json", []byte("{\"version\":2,\"skills\":{\"sk1\":{\"name\":\"sk1\"}}}"))
 	defer srv.close()
 	c := newMockedExecutor(t, srv)
 
@@ -888,18 +883,8 @@ func TestLoadWorkspaceMetadata_ParsesJSON(t *testing.T) {
 }
 
 func TestLoadWorkspaceMetadata_RecoversCorruptJSON(t *testing.T) {
-	srv := newMockE2BServer(t, func(code string) string {
-		if strings.Contains(code, "metadata.json") {
-			body := strings.Join([]string{
-				"__E2B_SIZE__=9",
-				"__E2B_B64_BEGIN__",
-				base64.StdEncoding.EncodeToString([]byte("not-json}")),
-				"__E2B_B64_END__",
-			}, "\n") + "\n"
-			return ndjsonLines(stdoutMsg(body))
-		}
-		return ""
-	})
+	srv := newMockE2BServer(t, nil)
+	srv.fs.put(t, "/tmp/ws/metadata.json", []byte("not-json}"))
 	defer srv.close()
 	c := newMockedExecutor(t, srv)
 
@@ -920,15 +905,11 @@ func TestCollectOutputs_LimitsAndNameTemplate(t *testing.T) {
 			return ndjsonLines(stdoutMsg(
 				"__E2B_BASE__=/tmp/ws\n/tmp/ws/out/big.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=100",
-			"__E2B_B64_BEGIN__",
-			base64.StdEncoding.EncodeToString([]byte("0123456789")),
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/tmp/ws/out/big.txt", []byte("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"))
+
 	c := newMockedExecutor(t, srv)
 
 	mf, err := c.CollectOutputs(context.Background(),
@@ -954,15 +935,12 @@ func TestCollectOutputs_MaxFilesLimit(t *testing.T) {
 				"__E2B_BASE__=/tmp/ws\n" +
 					"/tmp/ws/out/a.txt\n/tmp/ws/out/b.txt\n"))
 		}
-		body := strings.Join([]string{
-			"__E2B_SIZE__=1",
-			"__E2B_B64_BEGIN__",
-			base64.StdEncoding.EncodeToString([]byte("x")),
-			"__E2B_B64_END__",
-		}, "\n") + "\n"
-		return ndjsonLines(stdoutMsg(body))
+		return ""
 	})
 	defer srv.close()
+	srv.fs.put(t, "/tmp/ws/out/a.txt", []byte("x"))
+	srv.fs.put(t, "/tmp/ws/out/b.txt", []byte("x"))
+
 	c := newMockedExecutor(t, srv)
 
 	mf, err := c.CollectOutputs(context.Background(),

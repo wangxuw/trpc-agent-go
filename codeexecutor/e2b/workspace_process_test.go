@@ -11,6 +11,7 @@ package e2b
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -33,8 +34,9 @@ import (
 )
 
 type workspaceProcessInput struct {
-	data []byte
-	done chan struct{}
+	data     []byte
+	done     chan struct{}
+	expected int
 }
 
 type workspaceProcessHandler struct {
@@ -43,10 +45,12 @@ type workspaceProcessHandler struct {
 	requests []*process.StartRequest
 	headers  []http.Header
 	inputs   map[uint32]*workspaceProcessInput
+	script   func(context.Context, *connect.Request[process.StartRequest], string) (string, string, int32, error)
 	stdout   string
 	stderr   string
 	exitCode int32
 	start    func(context.Context, *connect.Request[process.StartRequest], *connect.ServerStream[process.StartResponse]) error
+	input    func(*process.SendInputRequest)
 	signal   func(*process.SendSignalRequest)
 }
 
@@ -56,8 +60,35 @@ func (h *workspaceProcessHandler) Start(ctx context.Context, req *connect.Reques
 	h.headers = append(h.headers, req.Header().Clone())
 	pid := uint32(len(h.requests))
 	input := &workspaceProcessInput{done: make(chan struct{})}
+	workspaceScript := len(req.Msg.Process.Args) == 4 && req.Msg.Process.Args[1] == workspaceScriptBootstrap
+	if workspaceScript {
+		input.expected, _ = strconv.Atoi(req.Msg.Process.Args[3])
+	}
 	h.inputs[pid] = input
 	h.mu.Unlock()
+	if workspaceScript {
+		if err := sendWorkspaceStart(stream, pid); err != nil {
+			return err
+		}
+		if input.expected > 0 {
+			select {
+			case <-input.done:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+		h.mu.Lock()
+		script := string(input.data)
+		h.mu.Unlock()
+		if h.script != nil {
+			stdout, stderr, exit, err := h.script(ctx, req, script)
+			if err != nil {
+				return err
+			}
+			return sendWorkspaceResult(stream, stdout, stderr, exit)
+		}
+		return sendWorkspaceResult(stream, "", "", 0)
+	}
 	if h.start != nil {
 		return h.start(ctx, req, stream)
 	}
@@ -76,12 +107,24 @@ func (h *workspaceProcessHandler) Start(ctx context.Context, req *connect.Reques
 
 func (h *workspaceProcessHandler) SendInput(_ context.Context, req *connect.Request[process.SendInputRequest]) (*connect.Response[process.SendInputResponse], error) {
 	h.mu.Lock()
-	defer h.mu.Unlock()
 	input := h.inputs[req.Msg.Process.GetPid()]
 	if input == nil {
+		h.mu.Unlock()
 		return nil, connect.NewError(connect.CodeNotFound, errors.New("unknown process"))
 	}
 	input.data = append(input.data, req.Msg.Input.GetStdin()...)
+	if input.expected > 0 && len(input.data) >= input.expected {
+		select {
+		case <-input.done:
+		default:
+			close(input.done)
+		}
+	}
+	onInput := h.input
+	h.mu.Unlock()
+	if onInput != nil {
+		onInput(req.Msg)
+	}
 	return connect.NewResponse(&process.SendInputResponse{}), nil
 }
 
@@ -425,4 +468,35 @@ func TestRunProgramBootstrapFailuresAndEOF(t *testing.T) {
 			}
 		})
 	}
+}
+
+// scriptFixtureResult adapts existing interpreter output fixtures to native
+// process events while preserving the filesystem test inputs and expectations.
+func scriptFixtureResult(fixture string) (string, string, int32, error) {
+	var stdout, stderr strings.Builder
+	var exit int32
+	for _, line := range strings.Split(fixture, "\n") {
+		if line == "" {
+			continue
+		}
+		var msg struct {
+			Type  string `json:"type"`
+			Text  string `json:"text"`
+			Value string `json:"value"`
+			Name  string `json:"name"`
+		}
+		if err := json.Unmarshal([]byte(line), &msg); err != nil {
+			return "", "", 0, err
+		}
+		switch msg.Type {
+		case "stdout":
+			stdout.WriteString(msg.Text)
+		case "stderr":
+			stderr.WriteString(msg.Text)
+		case "error":
+			exit = 1
+			stderr.WriteString(msg.Name + ": " + msg.Value)
+		}
+	}
+	return stdout.String(), stderr.String(), exit, nil
 }

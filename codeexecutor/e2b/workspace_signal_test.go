@@ -55,6 +55,7 @@ func TestWorkspaceSignalTermination(t *testing.T) {
 			srv.process.start = runLocalProcessWithEnvdEvents
 			base, err := filepath.EvalSymlinks(t.TempDir())
 			require.NoError(t, err)
+			srv.fs.localRoot = base
 			c := newMockedExecutor(t, srv, WithSandboxRunBase(base))
 			command := "printf 'before-signal\\n'; printf 'diagnostic\\n' >&2; " + tc.command
 			t.Run("RunProgram", func(t *testing.T) {

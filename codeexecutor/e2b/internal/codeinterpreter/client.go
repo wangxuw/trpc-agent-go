@@ -86,7 +86,7 @@ func (c *ConnectionConfig) init() {
 		c.RequestTimeout = DefaultRequestTimeout * time.Second
 	}
 	if c.HTTPClient == nil {
-		c.HTTPClient = newDefaultHTTPClient()
+		c.HTTPClient = diagnosticClient(newDefaultHTTPClient())
 	}
 }
 

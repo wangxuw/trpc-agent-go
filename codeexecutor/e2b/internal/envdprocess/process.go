@@ -37,13 +37,15 @@ type Process struct {
 }
 
 type processState struct {
-	stdout      captureBuffer
-	stderr      captureBuffer
-	exitCode    int
-	timedOut    bool
-	err         error
-	finished    bool
-	remoteEnded bool
+	stdout        captureBuffer
+	stderr        captureBuffer
+	output        captureBuffer
+	captureOutput bool
+	exitCode      int
+	timedOut      bool
+	err           error
+	finished      bool
+	remoteEnded   bool
 }
 
 func (s *processState) result(pid uint32) Result {
@@ -51,6 +53,7 @@ func (s *processState) result(pid uint32) Result {
 		PID:             pid,
 		Stdout:          s.stdout.String(),
 		Stderr:          s.stderr.String(),
+		Output:          s.output.String(),
 		ExitCode:        s.exitCode,
 		TimedOut:        s.timedOut,
 		StdoutTruncated: s.stdout.truncated,
@@ -136,6 +139,15 @@ func (p *Process) Kill(ctx context.Context) (bool, error) {
 	return p.client.Kill(ctx, p.pid)
 }
 
+// Terminate sends SIGTERM to this process. It returns false without an error
+// when envd reports that the process does not exist.
+func (p *Process) Terminate(ctx context.Context) (bool, error) {
+	if p == nil || p.client == nil {
+		return false, errors.New("envd process: process is not initialized")
+	}
+	return p.client.Terminate(ctx, p.pid)
+}
+
 // SendInput writes bytes to this process stdin.
 func (p *Process) SendInput(ctx context.Context, input []byte) error {
 	if p == nil || p.client == nil {
@@ -167,8 +179,9 @@ func newProcess(
 		done:        make(chan struct{}),
 		startupDone: make(chan struct{}),
 		state: processState{
-			stdout: captureBuffer{limit: client.stdoutCaptureLimit},
-			stderr: captureBuffer{limit: client.stderrCaptureLimit},
+			stdout:        captureBuffer{limit: client.stdoutCaptureLimit},
+			stderr:        captureBuffer{limit: client.stderrCaptureLimit},
+			captureOutput: client.captureCombined,
 		},
 	}
 }
@@ -315,6 +328,24 @@ func (p *Process) snapshot() (Result, error) {
 		return result, p.state.err
 	}
 	return result, nil
+}
+
+// Snapshot returns the output and state observed so far without waiting. The
+// bool reports whether the process event stream reached a terminal state.
+// When it is false, err is always nil.
+func (p *Process) Snapshot() (result Result, finished bool, err error) {
+	if p == nil {
+		return Result{}, false, errors.New(
+			"envd process: process is not initialized",
+		)
+	}
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	result = p.state.result(p.pid)
+	if !p.state.finished {
+		return result, false, nil
+	}
+	return result, true, p.state.err
 }
 
 // receiveProcessStart synchronously consumes the first response because Start

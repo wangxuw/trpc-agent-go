@@ -38,6 +38,7 @@ type Client struct {
 	supportsCloseStdin bool
 	stdoutCaptureLimit int
 	stderrCaptureLimit int
+	captureCombined    bool
 }
 
 // NewClient constructs an envd process client. Headers are snapshotted and
@@ -99,6 +100,7 @@ func NewClient(
 		supportsCloseStdin: clientOptions.supportsCloseStdin,
 		stdoutCaptureLimit: clientOptions.stdoutCaptureLimit,
 		stderrCaptureLimit: clientOptions.stderrCaptureLimit,
+		captureCombined:    clientOptions.captureCombined,
 	}
 	return client, nil
 }
@@ -403,7 +405,16 @@ func (c *Client) Kill(ctx context.Context, pid uint32) (bool, error) {
 	if err := c.validateOperation(ctx, pid); err != nil {
 		return false, err
 	}
-	return c.kill(ctx, killTarget{pid: pid})
+	return c.signal(ctx, killTarget{pid: pid}, process.Signal_SIGNAL_SIGKILL)
+}
+
+// Terminate sends SIGTERM to a process. It returns false without an error when
+// envd reports that the process does not exist.
+func (c *Client) Terminate(ctx context.Context, pid uint32) (bool, error) {
+	if err := c.validateOperation(ctx, pid); err != nil {
+		return false, err
+	}
+	return c.signal(ctx, killTarget{pid: pid}, process.Signal_SIGNAL_SIGTERM)
 }
 
 // SendInput writes bytes to an open process stdin.
@@ -494,6 +505,14 @@ func (c *Client) kill(
 	ctx context.Context,
 	target killTarget,
 ) (bool, error) {
+	return c.signal(ctx, target, process.Signal_SIGNAL_SIGKILL)
+}
+
+func (c *Client) signal(
+	ctx context.Context,
+	target killTarget,
+	signal process.Signal,
+) (bool, error) {
 	var selector *process.ProcessSelector
 	if target.pid != 0 {
 		selector = pidSelector(target.pid)
@@ -502,7 +521,7 @@ func (c *Client) kill(
 	}
 	request := connect.NewRequest(&process.SendSignalRequest{
 		Process: selector,
-		Signal:  process.Signal_SIGNAL_SIGKILL,
+		Signal:  signal,
 	})
 	c.addHeaders(request.Header())
 	_, err := c.processClient.SendSignal(ctx, request)
@@ -511,8 +530,9 @@ func (c *Client) kill(
 	}
 	if err != nil {
 		return false, fmt.Errorf(
-			"envd process: kill %s: %w",
+			"envd process: signal %s with %s: %w",
 			target,
+			signal,
 			err,
 		)
 	}
